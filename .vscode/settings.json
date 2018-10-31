@@ -1,0 +1,7 @@
+{
+    "vetur.format.defaultFormatter.html": "js-beautify-html",
+    "prettier.arrowParens": "always",
+    "prettier.singleQuote": true,
+    "prettier.trailingComma": "all",
+    "editor.tabSize": 2
+}
