@@ -18,7 +18,20 @@ router.get('/:id', async function(req, res) {
   await database.close();
   res.send(user);
 });
-router.post('/', function(req, res, next) {});
+router.post('/', async function(req, res) {
+  const database = await UnitOfWorkFactory.createAsync();
+  const userManager = new UserManager(database);
+
+  try {
+    await userManager.addAsync(req.body);
+    res.sendStatus(201);
+  } catch (err) {
+    res.status = 400;
+    res.send(err);
+  } finally {
+    await database.close();
+  }
+});
 router.put('/:id', function(req, res, next) {});
 router.delete('/:id', function(req, res, next) {});
 

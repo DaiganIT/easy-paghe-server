@@ -7,9 +7,9 @@ import util from 'util';
 //import Mailer from '../mail/mailer';
 import { User } from '../entities/user';
 import { Connection } from 'typeorm';
+import { AddUserDto } from '../models/addUserDto';
 
 const unlinkAsync = util.promisify(fs.unlink);
-
 const saltRounds = 10;
 
 export class UserManager {
@@ -22,69 +22,48 @@ export class UserManager {
     this.db = db;
   }
 
-  addAsync(userModel) {
+  /**
+   * Creates a new user.
+   * @param {AddUserDto} userModel
+   */
+  async addAsync(userModel) {
     validateUser(userModel);
-    const hashPromise = bcrypt.hash(userModel.password, saltRounds);
 
-    return hashPromise.then((hash) => {
-      userModel.password = hash;
-      //generate activation code
-      userModel.active = userModel.active || false;
-      if (!userModel.active) {
-        userModel.activationCode = randomstring.generate(50);
-        userModel.activationCodeValidity = moment()
-          .add(1, 'hours')
-          .utc()
-          .unix();
-      }
+    // duplicate check
+    var duplicateUser = await this.db
+      .getRepository(User)
+      .findOne({ email: userModel.email });
+    if (duplicateUser)
+      throw {
+        key: 'email',
+        code: 'DUPLICATE',
+        message: 'already exists',
+      };
 
-      const user = new User();
-      user.username = userModel.username;
-      user.password = userModel.password;
-      user.name = userModel.username.split('@')[0];
-      user.active = userModel.active;
-      user.activationCode = userModel.activationCode;
-      user.activationCodeValidity = userModel.activationCodeValidity;
+    userModel.activationCode = randomstring.generate(50);
+    userModel.activationCodeValidity = moment()
+      .add(1, 'hours')
+      .utc()
+      .unix();
 
-      return this.db
-        .getRepository(User)
-        .save(user)
-        .then((user) => {
-          if (!user.active)
-            Mailer.sendActivationMessage(user.username, user.activationCode);
-          return user;
-        })
-        .catch((err) => console.log(err));
-    });
+    const user = new User();
+    user.email = userModel.email;
+    user.password = 'Change Required';
+    user.name = userModel.name;
+    user.type = userModel.type;
+    user.active = false;
+    user.activationCode = randomstring.generate(50);
+    user.activationCodeValidity = moment()
+      .add(1, 'hours')
+      .utc()
+      .unix();
+
+    await this.db.getRepository(User).save(user);
+    //Mailer.sendActivationMessage(user.username, user.activationCode);
   }
 
   async getByIdAsync(id) {
     return await this.db.getRepository(User).findOne(id);
-  }
-
-  getUserInfoAsync(id) {
-    return this.db
-      .getRepository(User)
-      .createQueryBuilder('user')
-      .addSelect(
-        (s) =>
-          s
-            .select('count(*)')
-            .from('deal_likes_user', 'dlu')
-            .where('dlu.userId = user.id')
-            .andWhere('user.id = :userId', { userId: id }),
-        'user_totalLikes',
-      )
-      .addSelect(
-        (s) =>
-          s
-            .select('count(*)')
-            .from('deal', 'd')
-            .where('d.userId = :userId', { userId: id }),
-        'user_totalDeals',
-      )
-      .where('user.id = :userId', { userId: id })
-      .getOne();
   }
 
   async activateUserAsync(code) {
@@ -114,22 +93,6 @@ export class UserManager {
     Mailer.sendActivationMessage(user.username, user.activationCode);
   }
 
-  async updateProfilePictureAsync(file, userId) {
-    const user = await this.getByIdAsync(userId);
-
-    const oldPath = user.picture;
-    user.picture = file.path;
-
-    return await this.db
-      .getRepository(User)
-      .save(user)
-      .then((u) => {
-        if (oldPath) unlinkAsync(oldPath).then(() => u);
-        else return u;
-      })
-      .catch((err) => console.log(err));
-  }
-
   async getByUsernameAsync(username) {
     return await this.db
       .getRepository(User)
@@ -150,16 +113,34 @@ export class UserManager {
   }
 }
 
+/**
+ * Validates the user dto.
+ * @param {AddUserDto} user
+ */
 function validateUser(user) {
   const errors = [];
-  if (validator.isEmpty(user.username))
-    errors.push({ key: 'username', message: 'Inserisci un valore' });
-  if (!validator.isEmail(user.username))
-    errors.push({ key: 'username', message: 'Deve essere una email valida' });
-  if (validator.isEmpty(user.password))
-    errors.push({ key: 'password', message: 'Inserisci una password' });
-  if (validator.isLength(user.password, { min: 8 }))
-    errors.push({ key: 'password', message: 'Deve essere almeon 8 caratteri' });
+  if (!user.email || validator.isEmpty(user.email))
+    errors.push({
+      key: 'email',
+      code: 'REQUIRED',
+      message: 'must be provided',
+    });
+  if (!validator.isEmail(user.email))
+    errors.push({ key: 'email', code: 'INVALID', message: 'is invalid' });
 
-  if (errors.length > 0) throw new ValidationException(errors);
+  if (!user.name || validator.isEmpty(user.name))
+    errors.push({
+      key: 'name',
+      code: 'REQUIRED',
+      message: 'must be provided',
+    });
+
+  if (!user.type || validator.isEmpty(user.type))
+    errors.push({
+      key: 'type',
+      code: 'REQUIRED',
+      message: 'must be provided',
+    });
+
+  if (errors.length > 0) throw errors;
 }
