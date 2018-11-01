@@ -6,22 +6,13 @@ import fs from 'fs';
 import util from 'util';
 //import Mailer from '../mail/mailer';
 import { User } from '../entities/user';
-import { Connection } from 'typeorm';
 import { AddUserDto } from '../models/addUserDto';
+import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 
 const unlinkAsync = util.promisify(fs.unlink);
 const saltRounds = 10;
 
 export class UserManager {
-  /**
-   * Creates a new UserManager.
-   * @param {Connection} db The database.
-   */
-  constructor(db) {
-    if (!db instanceof Connection) throw 'Database is not a valid object';
-    this.db = db;
-  }
-
   /**
    * Creates a new user.
    * @param {AddUserDto} userModel
@@ -29,8 +20,10 @@ export class UserManager {
   async addAsync(userModel) {
     validateUser(userModel);
 
+    const db = await UnitOfWorkFactory.createAsync();
+
     // duplicate check
-    var duplicateUser = await this.db
+    var duplicateUser = await db
       .getRepository(User)
       .findOne({ email: userModel.email });
     if (duplicateUser)
@@ -58,27 +51,30 @@ export class UserManager {
       .utc()
       .unix();
 
-    await this.db.getRepository(User).save(user);
+    await db.getRepository(User).save(user);
+    await db.close();
     //Mailer.sendActivationMessage(user.username, user.activationCode);
   }
 
   async getByIdAsync(id) {
-    return await this.db.getRepository(User).findOne(id);
+    const db = await UnitOfWorkFactory.createAsync();
+    const user = await db.getRepository(User).findOne(id);
+    await db.close();
+    return user;
   }
 
   async activateUserAsync(code) {
-    let user = await this.db
-      .getRepository(User)
-      .findOne({ activationCode: code });
+    const db = await UnitOfWorkFactory.createAsync();
+    let user = await db.getRepository(User).findOne({ activationCode: code });
     if (user) {
       if (moment.unix(user.activationCodeValidity) >= moment().utc()) {
         user.active = true;
-        return this.db.getRepository(User).save(user);
+        return db.getRepository(User).save(user);
       }
-
+      await db.close();
       throw new InvalidOperationException('Codice di attivazione scaduto');
     }
-
+    await db.close();
     throw new InvalidOperationException('Codice di attivazione non trovato');
   }
 
@@ -88,16 +84,21 @@ export class UserManager {
     user.activationCode = randomstring.generate(50);
     user.activationCodeValidity = moment().add(1, 'hours');
 
-    await this.db.getRepository(User).save(user);
+    const db = await UnitOfWorkFactory.createAsync();
+    await db.getRepository(User).save(user);
+    await db.close();
 
     Mailer.sendActivationMessage(user.username, user.activationCode);
   }
 
   async getByUsernameAsync(username) {
-    return await this.db
+    const db = await UnitOfWorkFactory.createAsync();
+    const user = await db
       .getRepository(User)
       .findOne({ username: username })
       .catch(() => null);
+    await db.close();
+    return user;
   }
 
   async getByUserAndPassAsync(username, password) {

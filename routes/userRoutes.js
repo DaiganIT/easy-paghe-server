@@ -1,6 +1,5 @@
 import express from 'express';
 import isAuthenticated from '../auth/isAuthenticated';
-import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 import { UserManager } from '../managers/userManager';
 
 const router = express.Router();
@@ -11,16 +10,11 @@ router.use((req, res, next) => {
 });
 
 router.get('/:id', async function(req, res) {
-  const database = await UnitOfWorkFactory.createAsync();
-  const userManager = new UserManager(database);
-
   const user = await userManager.getByIdAsync(req.params.id);
-  await database.close();
   res.send(user);
 });
 router.post('/', async function(req, res) {
-  const database = await UnitOfWorkFactory.createAsync();
-  const userManager = new UserManager(database);
+  const userManager = new UserManager();
 
   try {
     await userManager.addAsync(req.body);
@@ -28,8 +22,6 @@ router.post('/', async function(req, res) {
   } catch (err) {
     res.status = 400;
     res.send(err);
-  } finally {
-    await database.close();
   }
 });
 router.put('/:id', function(req, res, next) {});
