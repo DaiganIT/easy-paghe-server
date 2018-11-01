@@ -3,15 +3,15 @@ import passport from 'passport';
 
 var router = express.Router();
 
-router.post('login', function(req, res, next) {
+router.post('/login', function(req, res, next) {
   if (!req.body.username) {
     res.status(400);
-    return res.send({ message: 'Devi inserire la tua email' });
+    return res.send({ message: 'USERNAME_MISSING' });
   }
 
   if (!req.body.password) {
     res.status(400);
-    return res.send({ message: 'Inserisci la password' });
+    return res.send({ message: 'PASSWORD_MISSING' });
   }
 
   passport.authenticate('local', function(err, user, info) {
@@ -33,7 +33,7 @@ router.post('login', function(req, res, next) {
   })(req, res, next);
 });
 
-router.post('logout', function(req, res, next) {
+router.post('/logout', function(req, res, next) {
   req.logout();
   return res.send();
 });

@@ -1,20 +1,14 @@
 {
-    "type": "mysql",
-    "host": "localhost",
-    "port": 3306,
-    "username": "root",
-    "password": "root",
-    "supportBigNumbers": false,
-    "database": "easy-paghe",
-    "synchronize": true,
-    "logging": false,
-    "entities": [
-       "entities/*.js"
-    ],
-    "migrations": [
-       "migrations/*.js"
-    ],
-    "subscribers": [
-       "subscribers/*.js"
-    ]
- }
+  "type": "mysql",
+  "host": "localhost",
+  "port": 3306,
+  "username": "root",
+  "password": "root",
+  "supportBigNumbers": false,
+  "database": "easy-paghe",
+  "synchronize": false,
+  "logging": false,
+  "entities": ["entities/*.js"],
+  "migrations": ["migrations/*.js"],
+  "subscribers": ["subscribers/*.js"]
+}
