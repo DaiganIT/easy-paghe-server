@@ -28,7 +28,7 @@ router.put('/:code/activate', async function(req, res) {
   const userManager = new UserManager();
 
   try {
-    await userManager.activateUserAsync(req.params.code);
+    await userManager.activateUserAsync(req.params.code, req.body);
     res.sendStatus(200);
   } catch (err) {
     res.status = 400;

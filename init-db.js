@@ -1,15 +1,21 @@
+import bcrypt from 'bcrypt';
 import { UnitOfWorkFactory } from './database/unitOfWorkFactory';
-import { UserManager } from './managers/userManager';
+import { User } from './entities/user';
 
 async function initDb() {
   const db = await UnitOfWorkFactory.createAsync();
-  db.synchronize();
+  await db.synchronize();
 
   // create first user
-  const userManager = new UserManager(db);
-  await userManager.addAsync({});
+  const user = new User();
+  user.active = true;
+  user.email = 'admin@easypaghe.it';
+  user.name = 'Administrator';
+  user.password = await bcrypt.hash('admin', 10);
+  user.type = 'Administrator';
 
-  db.close();
+  await db.getRepository(User).save(user);
+  await db.close();
 }
 
 initDb();

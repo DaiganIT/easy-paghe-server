@@ -20,9 +20,9 @@ export class User {
   @Column('varchar')
   type = '';
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true })
   activationCode = undefined;
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true })
   activationCodeValidity = undefined;
 }

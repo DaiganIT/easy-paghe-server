@@ -5,8 +5,8 @@ export default {
             from: '"easypaghe.it"',
             host: 'smtp.ethereal.email',
             port: 587,
-            username: 'lxwnrjdu76nt5xoa@ethereal.email',
-            password: '7k3rCjjHaB3fDPAb99'
+            username: 'lni62v654aqmxpim@ethereal.email',
+            password: 'gsbbFajCx3cPNgcAr7'
         }
     },
     host: {

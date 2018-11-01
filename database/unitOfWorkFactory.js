@@ -6,6 +6,6 @@ export class UnitOfWorkFactory {
    * @returns {Connection} The created connection.
    */
   static async createAsync() {
-    return await createConnection();
+    return await createConnection().catch(err => console.log(err));
   }
 }
