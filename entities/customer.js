@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { BaseEntity } from './baseEntity';
 @Entity()
-export class Customer {
-  @PrimaryGeneratedColumn()
-  id = undefined;
+export class Customer extends BaseEntity {
+	@PrimaryGeneratedColumn()
+	id = undefined;
 
-  @Column('varchar')
-  name = '';
+	@Column('varchar')
+	name = '';
 }

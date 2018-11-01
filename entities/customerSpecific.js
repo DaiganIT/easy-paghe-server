@@ -1,7 +1,8 @@
-import { PrimaryGeneratedColumn, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Customer } from './customer';
+import { BaseEntity } from './entity';
 
-export class CustomerSpecific {
+export class CustomerSpecific extends BaseEntity {
   @PrimaryGeneratedColumn()
 	id = undefined;
 
