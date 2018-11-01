@@ -4,6 +4,8 @@ import passport from 'passport';
 import bodyParser from 'body-parser';
 import path from 'path';
 import initPassport from './auth';
+import loginRoutes from './routes/loginRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 
@@ -20,7 +22,8 @@ app.use(passport.session());
 
 initPassport();
 
-app.use('/api/auth', loginController)
+app.use('/api/auth', loginRoutes)
+app.use('/api/users', userRoutes);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

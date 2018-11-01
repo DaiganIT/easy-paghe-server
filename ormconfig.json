@@ -5,7 +5,7 @@
     "username": "root",
     "password": "root",
     "supportBigNumbers": false,
-    "database": "ultimeofferte",
+    "database": "easy-paghe",
     "synchronize": true,
     "logging": false,
     "entities": [
