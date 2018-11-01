@@ -3,18 +3,21 @@ import { Company } from './company';
 
 @Entity()
 export class Person {
-	@PrimaryGeneratedColumn()
-	id = undefined;
+  @PrimaryGeneratedColumn()
+  id = undefined;
 
-	@Column('varchar')
-	name = '';
+  @Column('varchar')
+  name = '';
 
-	@Column('varchar')
-	phone = undefined;
+  @Column('varchar')
+  phone = undefined;
 
-	@Column('varchar')
-	address = undefined;
+  @Column('varchar')
+  address = undefined;
 
-	@ManyToOne((type) => Company, (c) => c.employees)
-	company = undefined;
+  @Column('varchar', { unique: true })
+  email = undefined;
+
+  @ManyToOne((type) => Company, (c) => c.employees)
+  company = undefined;
 }

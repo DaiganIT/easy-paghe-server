@@ -67,26 +67,28 @@ export class UserManager {
     const db = await UnitOfWorkFactory.createAsync();
     let user = await db.getRepository(User).findOne({ activationCode: code });
     if (user) {
-      if (moment.unix(user.activationCodeValidity) >= moment().utc()) {
+      if (codeIsValid(user)) {
         user.active = true;
         return db.getRepository(User).save(user);
       }
       await db.close();
-      throw new InvalidOperationException('Codice di attivazione scaduto');
+      throw { code: 'INVALID_CODE' };
     }
     await db.close();
-    throw new InvalidOperationException('Codice di attivazione non trovato');
+    throw { code: 'INVALID_CODE' };
   }
 
   async resendActivationAsync(userId) {
     const user = await getByIdAsync(userId);
 
-    user.activationCode = randomstring.generate(50);
-    user.activationCodeValidity = moment().add(1, 'hours');
+    if (!codeIsValid(user)) {
+      user.activationCode = randomstring.generate(50);
+      user.activationCodeValidity = moment().add(1, 'hours');
 
-    const db = await UnitOfWorkFactory.createAsync();
-    await db.getRepository(User).save(user);
-    await db.close();
+      const db = await UnitOfWorkFactory.createAsync();
+      await db.getRepository(User).save(user);
+      await db.close();
+    }
 
     Mailer.sendActivationMessage(user.username, user.activationCode);
   }
@@ -112,6 +114,10 @@ export class UserManager {
       return null;
     }
   }
+}
+
+function codeIsValid(user) {
+  return moment.unix(user.activationCodeValidity) >= moment().utc();
 }
 
 /**

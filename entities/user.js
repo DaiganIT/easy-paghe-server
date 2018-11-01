@@ -2,27 +2,27 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class User {
-	@PrimaryGeneratedColumn()
-	id = undefined;
+  @PrimaryGeneratedColumn()
+  id = undefined;
 
-	@Column('varchar')
-	email = '';
+  @Column('varchar', { unique: true })
+  email = '';
 
-	@Column('varchar')
-	password = '';
+  @Column('varchar')
+  password = '';
 
-	@Column('varchar')
-	name = '';
+  @Column('varchar')
+  name = '';
 
-	@Column('int')
-	active = false;
+  @Column('int')
+  active = false;
 
-	@Column('varchar')
-	type = '';
+  @Column('varchar')
+  type = '';
 
-	@Column('varchar')
-	activationCode = undefined;
+  @Column('varchar')
+  activationCode = undefined;
 
-	@Column('varchar')
-	activationCodeValidity = undefined;
+  @Column('varchar')
+  activationCodeValidity = undefined;
 }

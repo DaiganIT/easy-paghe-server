@@ -24,6 +24,28 @@ router.post('/', async function(req, res) {
     res.send(err);
   }
 });
+router.put('/:code/activate', async function(req, res) {
+  const userManager = new UserManager();
+
+  try {
+    await userManager.activateUserAsync(req.params.code);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status = 400;
+    res.send(err);
+  }
+});
+router.put('/:id/resend', async function(req, res) {
+  const userManager = new UserManager();
+
+  try {
+    await userManager.resendActivationAsync(req.params.id);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status = 400;
+    res.send(err);
+  }
+});
 router.put('/:id', function(req, res, next) {});
 router.delete('/:id', function(req, res, next) {});
 
