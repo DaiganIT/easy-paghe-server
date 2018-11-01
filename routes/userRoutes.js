@@ -10,6 +10,8 @@ router.use((req, res, next) => {
 });
 
 router.get('/:id', async function(req, res) {
+  const userManager = new UserManager();
+  
   const user = await userManager.getByIdAsync(req.params.id);
   res.send(user);
 });
@@ -46,7 +48,16 @@ router.put('/:id/resend', async function(req, res) {
     res.send(err);
   }
 });
-router.put('/:id', function(req, res, next) {});
-router.delete('/:id', function(req, res, next) {});
+router.delete('/:id', async function(req, res) {
+  const userManager = new UserManager();
+
+  try {
+    await userManager.deleteAsync(req.params.id);
+    res.sendStatus(204);
+  } catch (err) {
+    res.status = 400;
+    res.send(err);
+  }
+});
 
 export default router;

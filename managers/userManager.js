@@ -19,34 +19,37 @@ export class UserManager {
 		const db = await UnitOfWorkFactory.createAsync();
 
 		// duplicate check
-		var duplicateUser = await db.getRepository(User).findOne({ email: userModel.email });
-		if (duplicateUser)
-			throw {
-				key: 'email',
-				code: 'DUPLICATE',
-				message: 'already exists',
-			};
+		try {
+			var duplicateUser = await db.getRepository(User).findOne({ email: userModel.email });
+			if (duplicateUser)
+				throw {
+					key: 'email',
+					code: 'DUPLICATE',
+					message: 'already exists',
+				};
 
-		userModel.activationCode = randomstring.generate(50);
-		userModel.activationCodeValidity = moment()
-			.add(1, 'hours')
-			.utc()
-			.unix();
+			userModel.activationCode = randomstring.generate(50);
+			userModel.activationCodeValidity = moment()
+				.add(1, 'hours')
+				.utc()
+				.unix();
 
-		const user = new User();
-		user.email = userModel.email;
-		user.password = 'Change Required';
-		user.name = userModel.name;
-		user.type = userModel.type;
-		user.active = false;
-		user.activationCode = randomstring.generate(50);
-		user.activationCodeValidity = moment()
-			.add(1, 'hours')
-			.utc()
-			.unix();
+			const user = new User();
+			user.email = userModel.email;
+			user.password = 'Change Required';
+			user.name = userModel.name;
+			user.type = userModel.type;
+			user.active = false;
+			user.activationCode = randomstring.generate(50);
+			user.activationCodeValidity = moment()
+				.add(1, 'hours')
+				.utc()
+				.unix();
 
-		await db.getRepository(User).save(user);
-		await db.close();
+			await db.getRepository(User).save(user);
+		} finally {
+			await db.close();
+		}
 
 		Mailer.sendActivationMessage(user.email, user.activationCode);
 	}
@@ -57,9 +60,11 @@ export class UserManager {
 	 */
 	async getByIdAsync(id) {
 		const db = await UnitOfWorkFactory.createAsync();
-		const user = await db.getRepository(User).findOne(id);
-		await db.close();
-		return user;
+		try {
+			return await db.getRepository(User).findOne(id);
+		} finally {
+			await db.close();
+		}
 	}
 
 	/**
@@ -71,33 +76,46 @@ export class UserManager {
 		validatePasswordReset(code, passwordResetDto);
 
 		const db = await UnitOfWorkFactory.createAsync();
-		let user = await db.getRepository(User).findOne({ activationCode: code });
-		if (user) {
-			if (codeIsValid(user)) {
-        user.active = true;
-        user.password = await bcrypt.hash(passwordResetDto.password, 10);
-        user.activationCode = null;
-        user.activationCodeValidity = null;
-				await db.getRepository(User).save(user);
+		try {
+			let user = await db.getRepository(User).findOne({ activationCode: code });
+			if (user) {
+				if (codeIsValid(user)) {
+					user.active = true;
+					user.password = await bcrypt.hash(passwordResetDto.password, 10);
+					user.activationCode = null;
+					user.activationCodeValidity = null;
+					await db.getRepository(User).save(user);
+				}
+				throw [new Error(EXPIRED_CODE, 'Activation code has expired', 'code')];
+			} else {
+				throw [new Error(INVALID_CODE, 'Activation code is invalid', 'code')];
 			}
+		} finally {
 			await db.close();
-			throw [new Error(EXPIRED_CODE, 'Activation code has expired', 'code')];
-    } else {
-		  await db.close();
-      throw [new Error(INVALID_CODE, 'Activation code is invalid', 'code')];
-    }
+		}
 	}
 
+	/**
+	 * Gets the user by username.
+	 * @param {string} username The username.
+	 */
 	async getByUsernameAsync(username) {
 		const db = await UnitOfWorkFactory.createAsync();
-		const user = await db
-			.getRepository(User)
-			.findOne({ email: username })
-			.catch(() => null);
-		await db.close();
-		return user;
+
+		try {
+			return await db
+				.getRepository(User)
+				.findOne({ email: username });
+		} finally {
+			await db.close();
+		}
 	}
 
+	/**
+	 * Gets the user by user and password.
+	 * @param {string} username The username.
+	 * @param {string} password The password.
+	 */
 	async getByUserAndPassAsync(username, password) {
 		const user = await this.getByUsernameAsync(username);
 		if (!user || !user.active) return null;
@@ -107,6 +125,19 @@ export class UserManager {
 			return { id: user.id, username: user.username };
 		} else {
 			return null;
+		}
+	}
+
+	/**
+	 * Deletes the user by id.
+	 * @param {string} id The user id.
+	 */
+	async deleteAsync(id) {
+		const db = await UnitOfWorkFactory.createAsync();
+		try {
+			await db.getRepository(User).delete({ id: id });
+		} finally {
+			await db.close();
 		}
 	}
 }
@@ -139,9 +170,12 @@ function validateUser(user) {
  */
 function validatePasswordReset(code, passwordResetDto) {
 	const errors = [];
-  if (!code || validator.isEmpty(code)) errors.push(new Error(REQUIRED, 'must be provided', 'code'));
-  if (!passwordResetDto.password || validator.isEmpty(passwordResetDto.password)) errors.push(new Error(REQUIRED, 'must be provided', 'password'));
-  if (!passwordResetDto.passwordRetype || validator.isEmpty(passwordResetDto.passwordRetype)) errors.push(new Error(REQUIRED, 'must be provided', 'passwordRetype'));
-  if (passwordResetDto.password !== passwordResetDto.passwordRetype) errors.push(new Error(PASSWORD_MISMATCH, 'passwords do not match', 'password'));
+	if (!code || validator.isEmpty(code)) errors.push(new Error(REQUIRED, 'must be provided', 'code'));
+	if (!passwordResetDto.password || validator.isEmpty(passwordResetDto.password))
+		errors.push(new Error(REQUIRED, 'must be provided', 'password'));
+	if (!passwordResetDto.passwordRetype || validator.isEmpty(passwordResetDto.passwordRetype))
+		errors.push(new Error(REQUIRED, 'must be provided', 'passwordRetype'));
+	if (passwordResetDto.password !== passwordResetDto.passwordRetype)
+		errors.push(new Error(PASSWORD_MISMATCH, 'passwords do not match', 'password'));
 	if (errors.length > 0) throw errors;
 }

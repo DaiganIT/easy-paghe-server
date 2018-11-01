@@ -1,10 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { CustomerSpecific } from './customerSpecific';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id = undefined;
-
+export class User extends CustomerSpecific {
   @Column('varchar', { unique: true })
   email = '';
 

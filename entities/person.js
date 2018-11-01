@@ -1,11 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Company } from './company';
+import { CustomerSpecific } from './customerSpecific';
 
 @Entity()
-export class Person {
-  @PrimaryGeneratedColumn()
-  id = undefined;
-
+export class Person extends CustomerSpecific {
   @Column('varchar')
   name = '';
 

@@ -1,21 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { Person } from './person';
+import { CustomerSpecific } from './customerSpecific';
 
 @Entity()
-export class Company {
-	@PrimaryGeneratedColumn()
-	id = undefined;
-
+export class Company extends CustomerSpecific {
 	@Column('varchar')
 	name = '';
 
-	@Column('varchar')
+	@Column('varchar', { nullable: true })
 	address = '';
 
-	@Column('varchar')
+	@Column('varchar', { nullable: true })
 	phone = '';
 
-	@OneToOne(type => Person)
+	@OneToOne(type => Person, { nullable: true })
 	@JoinColumn()
 	mainContact = undefined;
 
