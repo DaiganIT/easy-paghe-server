@@ -35,6 +35,6 @@ export default function() {
     const user = await userManager.getByIdAsync(id);
     await db.close();
 
-    done(null, { id: '1' });
+    done(null, user);
   });
 }
