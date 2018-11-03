@@ -16,16 +16,50 @@ export class BaseManager {
 	}
 
 	/**
-	 * Gets an entity by id.
+	 * Gets a list of entities
 	 * @param {string} target The target entity.
-	 * @param {number} id The entity identifier.
-	 * @param {any} additional An additional search object.
+	 * @param {string} alias The main table alias.
+	 * @param {number} page The page number.
+	 * @param {number} pageLimit The page limit.
+	 * @param {function} queryBuilderFunc The optional query builder func.
 	 */
-	async getByIdAsync(target, id, additional = {}) {
+	async getAsync(target, alias, page, pageLimit, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();
 		try {
-			const searchObject = Object.assign({}, {id: id}, additional);
-			return await db.getRepository(target).findOne(searchObject);
+			let queryBuilder = db.getRepository(target)
+				.createQueryBuilder(alias)
+
+			if(queryBuilderFunc)
+				queryBuilder = queryBuilderFunc(queryBuilder);
+
+			return await queryBuilder
+				.skip((page - 1) * pageLimit)
+				.take(pageLimit)
+				.getMany();
+		} finally {
+			await db.close();
+		}
+	}
+
+	/**
+	 * Gets an entity by id.
+	 * @param {string} target The target entity.
+	 * @param {string} alias The main table alias.
+	 * @param {number} id The entity identifier.
+	 * @param {function} queryBuilderFunc The optional query builder func.
+	 */
+	async getByIdAsync(target, alias, id, queryBuilderFunc) {
+		const db = await UnitOfWorkFactory.createAsync();
+		try {
+			let queryBuilder = db.getRepository(target)
+				.createQueryBuilder(alias)
+
+			if(queryBuilderFunc)
+				queryBuilder = queryBuilderFunc(queryBuilder);
+
+			return await queryBuilder
+				.where(`${alias}.id = :id`, { id: id })
+				.getOne();
 		} finally {
 			await db.close();
 		}
@@ -34,14 +68,22 @@ export class BaseManager {
 	/**
 	 * Deletes the entity by id.
 	 * @param {string} target The target entity.
-	 * @param {number} id The user id.
-	 * @param {any} additional An additional search object.
+	 * @param {string} alias The main table alias.
+	 * @param {number} id The entity identifier.
+	 * @param {function} queryBuilderFunc The optional query builder func.
 	 */
-	async deleteAsync(target, id, additional = {}) {
+	async deleteAsync(target, alias, id, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();
 		try {
-			const searchObject = Object.assign({}, {id: id}, additional);
-			await db.getRepository(target).delete(searchObject);
+			let queryBuilder = db.getRepository(target)
+				.createQueryBuilder(alias)
+
+			if(queryBuilderFunc)
+				queryBuilder = queryBuilderFunc(queryBuilder);
+
+			return await queryBuilder
+				.where(`${alias}.id = :id`, { id: id })
+				.delete();
 		} finally {
 			await db.close();
 		}

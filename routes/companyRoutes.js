@@ -1,4 +1,5 @@
 import express from 'express';
+import url from 'url';
 import isAuthenticated from '../auth/isAuthenticated';
 import { CompanyManager } from '../managers/companyManager';
 
@@ -9,6 +10,19 @@ router.use((req, res, next) => {
   else res.sendStatus(401);
 });
 
+/**
+ * accepts
+ * @param {string} filter Text search string.
+ * @param {number} page Page number.
+ * @param {number} pageLimit Number of element per page.
+ */
+router.get('/', async function(req, res) {
+  const companyManager = new CompanyManager(req.user.customer);
+  const query = url.parse(req.url).query || {};
+
+  const companies = await companyManager.getAsync(query.filter, query.page, query.pageLimit);
+  res.send(companies);
+});
 router.get('/:id', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 

@@ -77,7 +77,10 @@ export class UserManager extends BaseManager {
 	 * @param {number} id
 	 */
 	async getByIdAsync(id) {
-		return await super.getByIdAsync(User, id, { relations: ['customer'] });
+		return await super.getByIdAsync(User, 'user', (queryBuilder) => {
+			return queryBuilder
+				.innerJoinAndSelect(`${user}.customer`, 'customer');
+		});
 	}
 
 	/**
@@ -144,7 +147,7 @@ export class UserManager extends BaseManager {
 	 * @param {string} id The user id.
 	 */
 	async deleteAsync(id) {
-		super.deleteAsync(User, id);
+		super.deleteAsync(User, 'user', id);
 	}
 }
 

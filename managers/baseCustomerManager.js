@@ -26,20 +26,48 @@ export class BaseCustomerManager extends BaseManager {
 	}
 
 	/**
+	 * Gets a list of company for the current user
+	 * @param {string} target The target entity.
+	 * @param {string} alias The main table alias.
+	 * @param {string} filter Text search string.
+	 * @param {number} page Page number.
+	 * @param {number} pageLimit Number of element per page.
+	 */
+	async getAsync(target, alias, page, pageLimit, queryBuilderFunc) {
+		return await super.getAsync(target, alias, page, pageLimit, (queryBuilder) => {
+			queryBuilder = queryBuilder
+				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :id', { id: this.customer.id });
+
+			if(queryBuilderFunc)
+				queryBuilder = queryBuilderFunc(queryBuilder);
+				
+			return queryBuilder;
+		});
+	}
+
+	/**
 	 * Gets an entity by id.
 	 * @param {string} target The target entity.
+	 * @param {string} alias The main alias.
 	 * @param {number} id The entity identifier.
 	 */
-	async getByIdAsync(target, id) {
-		return await super.getByIdAsync(target, id, { customerId: this.customer.Id });
+	async getByIdAsync(target, alias, id) {
+		return await super.getByIdAsync(target, alias, id, (queryBuilder) => {
+			return queryBuilder
+				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :id', { id: this.customer.id });
+		});
 	}
 
 	/**
 	 * Deletes the entity by id.
 	 * @param {string} target The target entity.
+	 * @param {string} alias The main alias.
 	 * @param {number} id The user id.
 	 */
-	async deleteAsync(target, id) {
-		await super.deleteAsync(target, id, { customerId: this.customer.Id });
+	async deleteAsync(target, alias, id) {
+		return await super.deleteAsync(target, alias, id, (queryBuilder) => {
+			return queryBuilder
+				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :id', { id: this.customer.id });
+		});
 	}
 }
