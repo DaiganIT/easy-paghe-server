@@ -19,7 +19,7 @@ router.post('/', async function(req, res) {
   const userManager = new UserManager();
 
   try {
-    await userManager.addAsync(req.body);
+    await userManager.addAsync(req.body, req.body.user.customer.id);
     res.sendStatus(201);
   } catch (err) {
     res.status = 400;

@@ -10,19 +10,19 @@ router.use((req, res, next) => {
 });
 
 router.get('/:id', async function(req, res) {
-  const companyManager = new CompanyManager();
+  const companyManager = new CompanyManager(req.user.customer);
 
   const company = await companyManager.getByIdAsync(req.params.id);
   res.send(company);
 });
 router.get('/:id/employees', async function(req, res) {
-  const companyManager = new CompanyManager();
+  const companyManager = new CompanyManager(req.user.customer);
 
   const emlpoyees = await companyManager.getEmployeesAsync(req.params.id);
   res.send(employees);
 });
 router.post('/', async function(req, res) {
-  const companyManager = new CompanyManager();
+  const companyManager = new CompanyManager(req.user.customer);
 
   try {
     await companyManager.addAsync(req.body);
@@ -33,7 +33,7 @@ router.post('/', async function(req, res) {
   }
 });
 router.put('/:id', async function(req, res) {
-  const companyManager = new CompanyManager();
+  const companyManager = new CompanyManager(req.user.customer);
 
   try {
     await companyManager.updateAsync(req.params.id, req.body);
@@ -44,7 +44,7 @@ router.put('/:id', async function(req, res) {
   }
 });
 router.delete('/:id', async function(req, res) {
-  const companyManager = new CompanyManager();
+  const companyManager = new CompanyManager(req.user.customer);
 
   try {
     await companyManager.deleteAsync(req.params.id);

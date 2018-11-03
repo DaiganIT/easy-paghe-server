@@ -7,49 +7,67 @@ import { User } from '../entities/user';
 import { AddUserDto } from '../models/addUserDto';
 import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 import { Error, REQUIRED, INVALID, PASSWORD_MISMATCH, INVALID_CODE } from '../utils/errors';
+import { BaseManager } from './baseManager';
 
-export class UserManager {
+export class UserManager extends BaseManager {
 	/**
 	 * Creates a new user.
 	 * @param {AddUserDto} userModel
 	 */
-	async addAsync(userModel) {
+	async addAsync(userModel, customerId) {
 		validateUser(userModel);
 
-		const db = await UnitOfWorkFactory.createAsync();
+		let db = await UnitOfWorkFactory.createAsync();
 
-		// duplicate check
 		try {
-			var duplicateUser = await db.getRepository(User).findOne({ email: userModel.email });
+			// duplicate check
+			const duplicateUser = await db.getRepository(User).findOne({ email: userModel.email });
 			if (duplicateUser)
 				throw {
 					key: 'email',
 					code: 'DUPLICATE',
 					message: 'already exists',
 				};
-
-			userModel.activationCode = randomstring.generate(50);
-			userModel.activationCodeValidity = moment()
-				.add(1, 'hours')
-				.utc()
-				.unix();
-
-			const user = new User();
-			user.email = userModel.email;
-			user.password = 'Change Required';
-			user.name = userModel.name;
-			user.type = userModel.type;
-			user.active = false;
-			user.activationCode = randomstring.generate(50);
-			user.activationCodeValidity = moment()
-				.add(1, 'hours')
-				.utc()
-				.unix();
-
-			await db.getRepository(User).save(user);
 		} finally {
 			await db.close();
 		}
+
+		db = await UnitOfWorkFactory.createAsync();
+		let customer;
+		// get customer
+		try {
+			customer = await db.getRepository(Customer).findOne({ id: customerId });
+			if(!customer)
+				throw {
+					key: 'customer',
+					code: 'INVALID',
+					message: 'customer is invalid'
+				};
+		} finally {
+			await db.close();
+		}
+
+		userModel.activationCode = randomstring.generate(50);
+		userModel.activationCodeValidity = moment()
+			.add(1, 'hours')
+			.utc()
+			.unix();
+
+
+		const user = new User();
+		user.email = userModel.email;
+		user.password = 'Change Required';
+		user.name = userModel.name;
+		user.type = userModel.type;
+		user.customer = customer;
+		user.active = false;
+		user.activationCode = randomstring.generate(50);
+		user.activationCodeValidity = moment()
+			.add(1, 'hours')
+			.utc()
+			.unix();
+
+		await super.saveAsync(User, user);
 
 		Mailer.sendActivationMessage(user.email, user.activationCode);
 	}
@@ -59,12 +77,7 @@ export class UserManager {
 	 * @param {number} id
 	 */
 	async getByIdAsync(id) {
-		const db = await UnitOfWorkFactory.createAsync();
-		try {
-			return await db.getRepository(User).findOne(id);
-		} finally {
-			await db.close();
-		}
+		return await super.getByIdAsync(User, id, { relations: ['customer'] });
 	}
 
 	/**
@@ -103,9 +116,7 @@ export class UserManager {
 		const db = await UnitOfWorkFactory.createAsync();
 
 		try {
-			return await db
-				.getRepository(User)
-				.findOne({ email: username });
+			return await db.getRepository(User).findOne({ email: username });
 		} finally {
 			await db.close();
 		}
@@ -133,12 +144,7 @@ export class UserManager {
 	 * @param {string} id The user id.
 	 */
 	async deleteAsync(id) {
-		const db = await UnitOfWorkFactory.createAsync();
-		try {
-			await db.getRepository(User).delete({ id: id });
-		} finally {
-			await db.close();
-		}
+		super.deleteAsync(User, id);
 	}
 }
 

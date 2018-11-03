@@ -1,9 +1,16 @@
-import validator from 'validator';
-import { Error, REQUIRED, INVALID, PASSWORD_MISMATCH, INVALID_CODE } from '../utils/errors';
 import { Company } from '../entities/company';
-import { BaseManager } from './baseManager';
+import { BaseCustomerManager } from './baseCustomerManager';
 
-export class CompanyManager extends BaseManager {
+export class CompanyManager extends BaseCustomerManager {
+
+	/**
+	 * Creates a new {CompanyManager}.
+	 * @param {Customer} customer The customer id.
+	 */
+	constructor(customer) {
+		super(customer);
+	}
+
 	/**
 	 * Creates a new company.
 	 * @param {AddCompanyDto} companyModel
