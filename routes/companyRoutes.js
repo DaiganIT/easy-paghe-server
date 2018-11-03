@@ -58,6 +58,12 @@ router.put('/:id', async function(req, res) {
     res.send(err);
   }
 });
+router.put('/:id/employees/:employeeId', async function(req, res) {
+  const companyManager = new CompanyManager(req.user.customer);
+
+  const employees = await companyManager.addEmployeeAsync(req.params.id, req.params.employeeId);
+  res.send(employees);
+});
 router.delete('/:id', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
@@ -68,6 +74,12 @@ router.delete('/:id', async function(req, res) {
     res.status = 400;
     res.send(err);
   }
+});
+router.delete('/:id/employees/:employeeId', async function(req, res) {
+  const companyManager = new CompanyManager(req.user.customer);
+
+  const employees = await companyManager.removeEmployeeAsync(req.params.id, req.params.employeeId);
+  res.send(employees);
 });
 
 export default router;

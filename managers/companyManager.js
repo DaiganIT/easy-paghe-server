@@ -1,7 +1,9 @@
+import { SelectQueryBuilder } from 'typeorm';
 import { Company } from '../entities/company';
 import { BaseCustomerManager } from './baseCustomerManager';
+import { PersonManager } from './personManager';
 import { Person } from '../entities/person';
-import { SelectQueryBuilder } from 'typeorm';
+import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 
 export class CompanyManager extends BaseCustomerManager {
 	/**
@@ -58,6 +60,42 @@ export class CompanyManager extends BaseCustomerManager {
 
 			return queryBuilder;
 		});
+	}
+
+	async addEmployeeAsync(id, employeeId) {
+		const db = UnitOfWorkFactory.createAsync();
+		try {
+			const company = await this.getByIdAsync(id);
+			const personManager = new PersonManager(super.getCustomer());
+			const employee = personManager.getByIdAsync(employeeId);
+
+			if (!employee || !company)
+				return null;
+
+			employee.company = await this.getByIdAsync(id);
+			await db.save(employee);
+			return employee;
+		} finally {
+			await db.close();
+		}
+	}
+
+	async removeEmployeeAsync(id, employeeId) {
+		const db = UnitOfWorkFactory.createAsync();
+		try {
+			const company = await this.getByIdAsync(id);
+			const personManager = new PersonManager(super.getCustomer());
+			const employee = personManager.getByIdAsync(employeeId);
+
+			if (!employee || !company)
+				return null;
+
+			employee.company = null;
+			await db.save(employee);
+			return employee;
+		} finally {
+			await db.close();
+		}
 	}
 
 	/**

@@ -7,15 +7,15 @@ export class Person extends CustomerSpecific {
 	@Column('varchar')
 	name = '';
 
-	@Column('varchar')
+	@Column('varchar', { nullable: true })
 	phone = undefined;
 
-	@Column('varchar')
+	@Column('varchar', { nullable: true })
 	address = undefined;
 
-	@Column('varchar', { unique: true })
+	@Column('varchar', { nullable: true })
 	email = undefined;
 
-	@ManyToOne((type) => Company, (c) => c.employees)
+	@ManyToOne((type) => Company, (c) => c.employees, { nullable: true })
 	company = undefined;
 }

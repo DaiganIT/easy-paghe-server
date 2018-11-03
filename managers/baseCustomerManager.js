@@ -15,6 +15,10 @@ export class BaseCustomerManager extends BaseManager {
 		this.customer = customer;
 	}
 
+	getCustomer() {
+		return this.customer;
+	}
+
 	/**
 	 * Saves the entity.
 	 * @param {string} target The target entity.

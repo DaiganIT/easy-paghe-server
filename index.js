@@ -8,6 +8,7 @@ import initPassportStrategy from './auth';
 import loginRoutes from './routes/loginRoutes';
 import userRoutes from './routes/userRoutes';
 import companyRoutes from './routes/companyRoutes';
+import personRoutes from './routes/personRoutes';
 
 const app = express();
 
@@ -29,6 +30,7 @@ initPassportStrategy();
 app.use('/api/auth', loginRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/companies', companyRoutes);
+app.use('/api/people', personRoutes);
 
 app.get('*', function(request, response) {
   response.sendFile(path.resolve('../easy-paghe/dist', 'index.html'));
