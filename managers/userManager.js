@@ -77,9 +77,9 @@ export class UserManager extends BaseManager {
 	 * @param {number} id
 	 */
 	async getByIdAsync(id) {
-		return await super.getByIdAsync(User, 'user', (queryBuilder) => {
+		return await super.getByIdAsync(User, 'user', id, (queryBuilder) => {
 			return queryBuilder
-				.innerJoinAndSelect(`${user}.customer`, 'customer');
+				.innerJoinAndSelect('user.customer', 'customer');
 		});
 	}
 

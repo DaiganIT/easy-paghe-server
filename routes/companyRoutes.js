@@ -18,7 +18,7 @@ router.use((req, res, next) => {
  */
 router.get('/', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
-  const query = url.parse(req.url).query || {};
+  const query = url.parse(req.url, true).query || {};
 
   const companies = await companyManager.getAsync(query.filter, query.page, query.pageLimit);
   res.send(companies);
@@ -31,8 +31,9 @@ router.get('/:id', async function(req, res) {
 });
 router.get('/:id/employees', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
+  const query = url.parse(req.url, true).query || {};
 
-  const emlpoyees = await companyManager.getEmployeesAsync(req.params.id);
+  const employees = await companyManager.getEmployeesAsync(req.params.id, query.filter, query.page, query.pageLimit);
   res.send(employees);
 });
 router.post('/', async function(req, res) {

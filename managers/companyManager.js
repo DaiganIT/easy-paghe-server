@@ -1,6 +1,7 @@
 import { Company } from '../entities/company';
 import { BaseCustomerManager } from './baseCustomerManager';
-import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
+import { Person } from '../entities/person';
+import { SelectQueryBuilder } from 'typeorm';
 
 export class CompanyManager extends BaseCustomerManager {
 	/**
@@ -40,6 +41,20 @@ export class CompanyManager extends BaseCustomerManager {
 			if (filter)
 				queryBuilder
 					.where('company.name like :filter or company.address like :filter or company.phone like :filter', { filter: `%${filter}%`});
+
+			return queryBuilder;
+		});
+	}
+
+	async getEmployeesAsync(id, filter, page, pageLimit) {
+		page = page || 1;
+		pageLimit = pageLimit || 10;
+
+		return await super.getAsync(Person, 'person', page, pageLimit, /** @param {SelectQueryBuilder} queryBuilder */ (queryBuilder) => {
+			if (filter)
+				queryBuilder
+					.innerJoin('person.company', 'company', 'company.id = :id', { id: id })
+					.where('person.name like :filter or company.address like :filter or company.phone like :filter or company.email like :filter', { filter: `%${filter}%`});
 
 			return queryBuilder;
 		});
