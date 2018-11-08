@@ -40,7 +40,7 @@ export class BaseCustomerManager extends BaseManager {
 	async getAsync(target, alias, page, pageLimit, queryBuilderFunc) {
 		return await super.getAsync(target, alias, page, pageLimit, (queryBuilder) => {
 			queryBuilder = queryBuilder
-				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :id', { id: this.customer.id });
+				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :customerId', { customerId: this.customer.id });
 
 			if(queryBuilderFunc)
 				queryBuilder = queryBuilderFunc(queryBuilder);
@@ -58,7 +58,7 @@ export class BaseCustomerManager extends BaseManager {
 	async getByIdAsync(target, alias, id) {
 		return await super.getByIdAsync(target, alias, id, (queryBuilder) => {
 			return queryBuilder
-				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :id', { id: this.customer.id });
+				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :customerId', { customerId: this.customer.id });
 		});
 	}
 
@@ -71,7 +71,7 @@ export class BaseCustomerManager extends BaseManager {
 	async deleteAsync(target, alias, id) {
 		return await super.deleteAsync(target, alias, id, (queryBuilder) => {
 			return queryBuilder
-				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :id', { id: this.customer.id });
+				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :customerId', { customerId: this.customer.id });
 		});
 	}
 }
