@@ -30,6 +30,21 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	/**
+	 * Updates an existing company
+	 * @param {AddCompanyDto} companyModel
+	 */
+	async updateAsync(id, companyModel) {
+		validateCompany(companyModel);
+
+		const company = await this.getByIdAsync(id);
+		company.name = companyModel.name;
+		company.phone = companyModel.phone;
+		company.address = companyModel.address;
+
+		super.saveAsync(Company, company);
+	}
+
+	/**
 	 * Gets a list of company for the current user
 	 * @param {string} filter Text search string.
 	 * @param {number} page Page number.
@@ -41,8 +56,10 @@ export class CompanyManager extends BaseCustomerManager {
 
 		return await super.getAsync(Company, 'company', page, pageLimit, (queryBuilder) => {
 			if (filter)
-				queryBuilder
-					.where('company.name like :filter or company.address like :filter or company.phone like :filter', { filter: `%${filter}%`});
+				queryBuilder.where(
+					'company.name like :filter or company.address like :filter or company.phone like :filter',
+					{ filter: `%${filter}%` },
+				);
 
 			return queryBuilder;
 		});
@@ -52,14 +69,23 @@ export class CompanyManager extends BaseCustomerManager {
 		page = page || 1;
 		pageLimit = pageLimit || 10;
 
-		return await super.getAsync(Person, 'person', page, pageLimit, /** @param {SelectQueryBuilder} queryBuilder */ (queryBuilder) => {
-			if (filter)
-				queryBuilder
-					.innerJoin('person.company', 'company', 'company.id = :id', { id: id })
-					.where('person.name like :filter or company.address like :filter or company.phone like :filter or company.email like :filter', { filter: `%${filter}%`});
+		return await super.getAsync(
+			Person,
+			'person',
+			page,
+			pageLimit,
+			/** @param {SelectQueryBuilder} queryBuilder */ (queryBuilder) => {
+				if (filter)
+					queryBuilder
+						.innerJoin('person.company', 'company', 'company.id = :id', { id: id })
+						.where(
+							'person.name like :filter or company.address like :filter or company.phone like :filter or company.email like :filter',
+							{ filter: `%${filter}%` },
+						);
 
-			return queryBuilder;
-		});
+				return queryBuilder;
+			},
+		);
 	}
 
 	async addEmployeeAsync(id, employeeId) {
@@ -69,8 +95,7 @@ export class CompanyManager extends BaseCustomerManager {
 			const personManager = new PersonManager(super.getCustomer());
 			const employee = personManager.getByIdAsync(employeeId);
 
-			if (!employee || !company)
-				return null;
+			if (!employee || !company) return null;
 
 			employee.company = await this.getByIdAsync(id);
 			await db.save(employee);
@@ -87,8 +112,7 @@ export class CompanyManager extends BaseCustomerManager {
 			const personManager = new PersonManager(super.getCustomer());
 			const employee = personManager.getByIdAsync(employeeId);
 
-			if (!employee || !company)
-				return null;
+			if (!employee || !company) return null;
 
 			employee.company = null;
 			await db.save(employee);
