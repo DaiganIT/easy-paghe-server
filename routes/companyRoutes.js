@@ -40,11 +40,10 @@ router.post('/', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
   try {
-    await companyManager.addAsync(req.body);
-    res.sendStatus(201);
+    const company = await companyManager.addAsync(req.body);
+    res.status(201).send(company);
   } catch (err) {
-    res.status = 400;
-    res.send(err);
+    res.status(400).send(err);
   }
 });
 router.put('/:id', async function(req, res) {

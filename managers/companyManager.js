@@ -26,7 +26,8 @@ export class CompanyManager extends BaseCustomerManager {
 		company.phone = companyModel.phone;
 		company.address = companyModel.address;
 
-		super.saveAsync(Company, company);
+		await super.saveAsync(Company, company);
+		return company;
 	}
 
 	/**
@@ -145,5 +146,9 @@ export class CompanyManager extends BaseCustomerManager {
  */
 function validateCompany(company) {
 	const errors = [];
+
+	if (!company.name)
+		errors.push({ name: 'name' });
+
 	if (errors.length > 0) throw errors;
 }
