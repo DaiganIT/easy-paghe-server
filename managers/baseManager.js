@@ -83,7 +83,7 @@ export class BaseManager {
 
 			return await queryBuilder
 				.where(`${alias}.id = :id`, { id: id })
-				.delete();
+				.delete().execute();
 		} finally {
 			await db.close();
 		}
