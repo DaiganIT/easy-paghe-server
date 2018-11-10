@@ -50,8 +50,8 @@ router.put('/:id', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
   try {
-    await companyManager.updateAsync(req.params.id, req.body);
-    res.sendStatus(200);
+    const company = await companyManager.updateAsync(req.params.id, req.body);
+    res.status(200).send(company);
   } catch (err) {
     res.status = 400;
     res.send(err);

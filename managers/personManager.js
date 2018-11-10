@@ -23,7 +23,25 @@ export class PersonManager extends BaseCustomerManager {
 		person.address = personModel.address;
 		person.email = personModel.email;
 
-		super.saveAsync(Person, person);
+		await super.saveAsync(Person, person);
+		return person;
+	}
+
+	/**
+	 * Updates a new person.
+	 * @param {AddPersonDto} personModel
+	 */
+	async updateAsync(id, personModel) {
+		validatePerson(personModel);
+
+		const person = await this.getByIdAsync(id);
+		person.name = personModel.name;
+		person.phone = personModel.phone;
+		person.address = personModel.address;
+		person.email = personModel.email;
+
+		await super.saveAsync(Person, person);
+		return person;
 	}
 
 	/**

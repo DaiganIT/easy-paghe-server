@@ -33,8 +33,8 @@ router.post('/', async function(req, res) {
   const personManager = new PersonManager(req.user.customer);
 
   try {
-    await personManager.addAsync(req.body);
-    res.sendStatus(201);
+    const person = await personManager.addAsync(req.body);
+    res.sendStatus(200).send(person);
   } catch (err) {
     res.status = 400;
     res.send(err);
@@ -44,8 +44,8 @@ router.put('/:id', async function(req, res) {
   const personManager = new PersonManager(req.user.customer);
 
   try {
-    await personManager.updateAsync(req.params.id, req.body);
-    res.sendStatus(200);
+    const person = await personManager.updateAsync(req.params.id, req.body);
+    res.sendStatus(200).send(person);
   } catch (err) {
     res.status = 400;
     res.send(err);

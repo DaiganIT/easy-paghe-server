@@ -42,7 +42,8 @@ export class CompanyManager extends BaseCustomerManager {
 		company.phone = companyModel.phone;
 		company.address = companyModel.address;
 
-		super.saveAsync(Company, company);
+		await super.saveAsync(Company, company);
+		return company;
 	}
 
 	/**
