@@ -19,40 +19,31 @@ export class UserManager extends BaseManager {
 
 		let db = await UnitOfWorkFactory.createAsync();
 
-		try {
-			// duplicate check
-			const duplicateUser = await db.getRepository(User).findOne({ email: userModel.email });
-			if (duplicateUser)
-				throw {
-					key: 'email',
-					code: 'DUPLICATE',
-					message: 'already exists',
-				};
-		} finally {
-			await db.close();
-		}
+		// duplicate check
+		const duplicateUser = await db.getRepository(User).findOne({ email: userModel.email });
+		if (duplicateUser)
+			throw {
+				key: 'email',
+				code: 'DUPLICATE',
+				message: 'already exists',
+			};
 
 		db = await UnitOfWorkFactory.createAsync();
 		let customer;
 		// get customer
-		try {
-			customer = await db.getRepository(Customer).findOne({ id: customerId });
-			if(!customer)
-				throw {
-					key: 'customer',
-					code: 'INVALID',
-					message: 'customer is invalid'
-				};
-		} finally {
-			await db.close();
-		}
+		customer = await db.getRepository(Customer).findOne({ id: customerId });
+		if (!customer)
+			throw {
+				key: 'customer',
+				code: 'INVALID',
+				message: 'customer is invalid',
+			};
 
 		userModel.activationCode = randomstring.generate(50);
 		userModel.activationCodeValidity = moment()
 			.add(1, 'hours')
 			.utc()
 			.unix();
-
 
 		const user = new User();
 		user.email = userModel.email;
@@ -78,8 +69,7 @@ export class UserManager extends BaseManager {
 	 */
 	async getByIdAsync(id) {
 		return await super.getByIdAsync(User, 'user', id, (queryBuilder) => {
-			return queryBuilder
-				.innerJoinAndSelect('user.customer', 'customer');
+			return queryBuilder.innerJoinAndSelect('user.customer', 'customer');
 		});
 	}
 
@@ -92,22 +82,18 @@ export class UserManager extends BaseManager {
 		validatePasswordReset(code, passwordResetDto);
 
 		const db = await UnitOfWorkFactory.createAsync();
-		try {
-			let user = await db.getRepository(User).findOne({ activationCode: code });
-			if (user) {
-				if (codeIsValid(user)) {
-					user.active = true;
-					user.password = await bcrypt.hash(passwordResetDto.password, 10);
-					user.activationCode = null;
-					user.activationCodeValidity = null;
-					await db.getRepository(User).save(user);
-				}
-				throw [new Error(EXPIRED_CODE, 'Activation code has expired', 'code')];
-			} else {
-				throw [new Error(INVALID_CODE, 'Activation code is invalid', 'code')];
+		let user = await db.getRepository(User).findOne({ activationCode: code });
+		if (user) {
+			if (codeIsValid(user)) {
+				user.active = true;
+				user.password = await bcrypt.hash(passwordResetDto.password, 10);
+				user.activationCode = null;
+				user.activationCodeValidity = null;
+				await db.getRepository(User).save(user);
 			}
-		} finally {
-			await db.close();
+			throw [new Error(EXPIRED_CODE, 'Activation code has expired', 'code')];
+		} else {
+			throw [new Error(INVALID_CODE, 'Activation code is invalid', 'code')];
 		}
 	}
 
@@ -118,11 +104,7 @@ export class UserManager extends BaseManager {
 	async getByUsernameAsync(username) {
 		const db = await UnitOfWorkFactory.createAsync();
 
-		try {
-			return await db.getRepository(User).findOne({ email: username });
-		} finally {
-			await db.close();
-		}
+		return await db.getRepository(User).findOne({ email: username });
 	}
 
 	/**

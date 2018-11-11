@@ -68,7 +68,7 @@ router.delete('/:id', async function(req, res) {
 
   try {
     await companyManager.deleteAsync(req.params.id);
-    res.sendStatus(204);
+    res.status(204).send();
   } catch (err) {
     res.status = 400;
     res.send(err);
@@ -77,8 +77,8 @@ router.delete('/:id', async function(req, res) {
 router.delete('/:id/employees/:employeeId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
-  const employees = await companyManager.removeEmployeeAsync(req.params.id, req.params.employeeId);
-  res.send(employees);
+  await companyManager.removeEmployeeAsync(req.params.id, req.params.employeeId);
+  res.status(200).send();
 });
 
 export default router;

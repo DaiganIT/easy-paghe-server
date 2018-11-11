@@ -68,7 +68,7 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	async getEmployeesAsync(id, filter, page, pageLimit) {
-		page = page || 1;
+		page = page || 0;
 		pageLimit = pageLimit || 10;
 
 		return await super.getAsync(
@@ -77,13 +77,14 @@ export class CompanyManager extends BaseCustomerManager {
 			page,
 			pageLimit,
 			/** @param {SelectQueryBuilder} queryBuilder */ (queryBuilder) => {
+				queryBuilder = queryBuilder.innerJoin('person.company', 'company', 'company.id = :companyId', {
+					companyId: id,
+				});
 				if (filter)
-					queryBuilder
-						.innerJoin('person.company', 'company', 'company.id = :id', { id: id })
-						.where(
-							'person.name like :filter or company.address like :filter or company.phone like :filter or company.email like :filter',
-							{ filter: `%${filter}%` },
-						);
+					queryBuilder = queryBuilder.where(
+						'person.name like :filter or person.address like :filter or person.phone like :filter or person.email like :filter',
+						{ filter: `%${filter}%` },
+					);
 
 				return queryBuilder;
 			},
@@ -91,37 +92,27 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	async addEmployeeAsync(id, employeeId) {
-		const db = UnitOfWorkFactory.createAsync();
-		try {
-			const company = await this.getByIdAsync(id);
-			const personManager = new PersonManager(super.getCustomer());
-			const employee = personManager.getByIdAsync(employeeId);
+		const company = await this.getByIdAsync(id);
+		const personManager = new PersonManager(super.getCustomer());
+		const employee = await personManager.getByIdAsync(employeeId);
 
-			if (!employee || !company) return null;
+		if (!employee || !company) return null;
 
-			employee.company = await this.getByIdAsync(id);
-			await db.save(employee);
-			return employee;
-		} finally {
-			await db.close();
-		}
+		employee.company = company;
+		const db = await UnitOfWorkFactory.createAsync();
+		await db.getRepository(Person).save(employee);
 	}
 
 	async removeEmployeeAsync(id, employeeId) {
-		const db = UnitOfWorkFactory.createAsync();
-		try {
-			const company = await this.getByIdAsync(id);
-			const personManager = new PersonManager(super.getCustomer());
-			const employee = personManager.getByIdAsync(employeeId);
+		const company = await this.getByIdAsync(id);
+		const personManager = new PersonManager(super.getCustomer());
+		const employee = await personManager.getByIdAsync(employeeId);
 
-			if (!employee || !company) return null;
+		if (!employee || !company) return null;
 
-			employee.company = null;
-			await db.save(employee);
-			return employee;
-		} finally {
-			await db.close();
-		}
+		employee.company = null;
+		const db = await UnitOfWorkFactory.createAsync();
+		await db.getRepository(Person).save(employee);
 	}
 
 	/**
@@ -148,8 +139,7 @@ export class CompanyManager extends BaseCustomerManager {
 function validateCompany(company) {
 	const errors = [];
 
-	if (!company.name)
-		errors.push({ name: 'name' });
+	if (!company.name) errors.push({ name: 'name' });
 
 	if (errors.length > 0) throw errors;
 }

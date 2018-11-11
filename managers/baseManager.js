@@ -8,11 +8,7 @@ export class BaseManager {
 	 */
 	async saveAsync(target, entity) {
 		const db = await UnitOfWorkFactory.createAsync();
-		try {
-			await db.getRepository(target).save(entity);
-		} finally {
-			await db.close();
-		}
+		await db.getRepository(target).save(entity);
 	}
 
 	/**
@@ -25,24 +21,20 @@ export class BaseManager {
 	 */
 	async getAsync(target, alias, page, pageLimit, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();
-		try {
-			let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
+		let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
 
-			if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
+		if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
 
-			const length = await queryBuilder.getCount();
-			const data = await queryBuilder
-				.skip(page * pageLimit)
-				.take(pageLimit)
-				.getMany();
+		const length = await queryBuilder.getCount();
+		const data = await queryBuilder
+			.skip(page * pageLimit)
+			.take(pageLimit)
+			.getMany();
 
-			return {
-				items: data,
-				length: length,
-			};
-		} finally {
-			await db.close();
-		}
+		return {
+			items: data,
+			length: length,
+		};
 	}
 
 	/**
@@ -54,15 +46,11 @@ export class BaseManager {
 	 */
 	async getByIdAsync(target, alias, id, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();
-		try {
-			let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
+		let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
 
-			if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
+		if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
 
-			return await queryBuilder.where(`${alias}.id = :id`, { id: id }).getOne();
-		} finally {
-			await db.close();
-		}
+		return await queryBuilder.where(`${alias}.id = :id`, { id: id }).getOne();
 	}
 
 	/**
@@ -74,17 +62,13 @@ export class BaseManager {
 	 */
 	async deleteAsync(target, alias, id, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();
-		try {
-			let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
+		let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
 
-			if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
+		if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
 
-			return await queryBuilder
-				.where(`${alias}.id = :id`, { id: id })
-				.delete()
-				.execute();
-		} finally {
-			await db.close();
-		}
+		return await queryBuilder
+			.where(`${alias}.id = :id`, { id: id })
+			.delete()
+			.execute();
 	}
 }
