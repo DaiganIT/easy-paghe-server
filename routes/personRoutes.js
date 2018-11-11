@@ -34,10 +34,9 @@ router.post('/', async function(req, res) {
 
   try {
     const person = await personManager.addAsync(req.body);
-    res.sendStatus(200).send(person);
+    res.status(200).send(person);
   } catch (err) {
-    res.status = 400;
-    res.send(err);
+    res.status(400).send(err);
   }
 });
 router.put('/:id', async function(req, res) {
@@ -45,10 +44,9 @@ router.put('/:id', async function(req, res) {
 
   try {
     const person = await personManager.updateAsync(req.params.id, req.body);
-    res.sendStatus(200).send(person);
+    res.status(200).send(person);
   } catch (err) {
-    res.status = 400;
-    res.send(err);
+    res.status(400).send(err);
   }
 });
 router.delete('/:id', async function(req, res) {
