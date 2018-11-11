@@ -51,7 +51,7 @@ export class PersonManager extends BaseCustomerManager {
 	 * @param {number} pageLimit Number of element per page.
 	 */
 	async getAsync(filter, page, pageLimit) {
-		page = page || 1;
+		page = page || 0;
 		pageLimit = pageLimit || 10;
 
 		return await super.getAsync(Person, 'person', page, pageLimit, (queryBuilder) => {
