@@ -22,8 +22,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.4",
     "moment": "^2.22.2",
-    "request": "^2.88.0",
-    "validator": "^10.8.0"
+    "request": "^2.88.0"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -35,6 +34,7 @@
     "passport-local": "^1.0.0",
     "randomstring": "^1.1.5",
     "reflect-metadata": "^0.1.12",
-    "typeorm": "^0.2.8"
+    "typeorm": "^0.2.8",
+    "validate.js": "^0.12.0"
   }
 }

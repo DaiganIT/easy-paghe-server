@@ -1,9 +1,11 @@
+import validate from 'validate.js';
 import { SelectQueryBuilder } from 'typeorm';
 import { Company } from '../entities/company';
 import { BaseCustomerManager } from './baseCustomerManager';
 import { PersonManager } from './personManager';
 import { Person } from '../entities/person';
 import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
+import addCompanyValidator from '../models/validators/addCompanyValidator';
 
 export class CompanyManager extends BaseCustomerManager {
 	/**
@@ -19,12 +21,16 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {AddCompanyDto} companyModel
 	 */
 	async addAsync(companyModel) {
-		validateCompany(companyModel);
+		const errors = validate(companyModel, addCompanyValidator)
+		if (errors) throw errors;
 
 		const company = new Company();
 		company.name = companyModel.name;
-		company.phone = companyModel.phone;
+		company.fiscalCode = companyModel.fiscalCode;
+		company.ivaCode = companyModel.ivaCode;
 		company.address = companyModel.address;
+		company.inpsRegistrationNumber = companyModel.inpsRegistrationNumber;
+		company.inailRegistrationNumber = companyModel.inailRegistrationNumber;
 
 		await super.saveAsync(Company, company);
 		return company;
@@ -38,9 +44,12 @@ export class CompanyManager extends BaseCustomerManager {
 		validateCompany(companyModel);
 
 		const company = await this.getByIdAsync(id);
-		company.name = companyModel.name;
-		company.phone = companyModel.phone;
+		ompany.name = companyModel.name;
+		company.fiscalCode = companyModel.fiscalCode;
+		company.ivaCode = companyModel.ivaCode;
 		company.address = companyModel.address;
+		company.inpsRegistrationNumber = companyModel.inpsRegistrationNumber;
+		company.inailRegistrationNumber = companyModel.inailRegistrationNumber;
 
 		await super.saveAsync(Company, company);
 		return company;
@@ -132,14 +141,7 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 }
 
-/**
- * Validates the company dto.
- * @param {AddCompanyDto} company The company dto to validate.
- */
-function validateCompany(company) {
-	const errors = [];
-
-	if (!company.name) errors.push({ name: 'name' });
-
-	if (errors.length > 0) throw errors;
+function isNotNullString(str) {
+	if (str === undefined || str === null) return false;
+	return str.length >= 0;
 }

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import validator from 'validator';
+import validate from 'validate.js';
 import bcrypt from 'bcrypt';
 import randomstring from 'randomstring';
 import Mailer from '../mail/mailer';
@@ -15,8 +15,6 @@ export class UserManager extends BaseManager {
 	 * @param {AddUserDto} userModel
 	 */
 	async addAsync(userModel, customerId) {
-		validateUser(userModel);
-
 		let db = await UnitOfWorkFactory.createAsync();
 
 		// duplicate check
@@ -141,32 +139,32 @@ function codeIsValid(user) {
 	return moment.unix(user.activationCodeValidity) >= moment().utc();
 }
 
-/**
- * Validates the user dto.
- * @param {AddUserDto} user
- */
-function validateUser(user) {
-	const errors = [];
-	if (!user.email || validator.isEmpty(user.email)) errors.push(new Error(REQUIRED, 'must be provided', 'email'));
-	if (!validator.isEmail(user.email)) errors.push(new Error(INVALID, 'is invalid', 'email'));
-	if (!user.name || validator.isEmpty(user.name)) errors.push(new Error(REQUIRED, 'must be provided', 'name'));
-	if (!user.type || validator.isEmpty(user.type)) errors.push(new Error(REQUIRED, 'must be provided', 'type'));
-	if (errors.length > 0) throw errors;
-}
+// /**
+//  * Validates the user dto.
+//  * @param {AddUserDto} user
+//  */
+// function validateUser(user) {
+// 	const errors = [];
+// 	if (!user.email || validator.isEmpty(user.email)) errors.push(new Error(REQUIRED, 'must be provided', 'email'));
+// 	if (!validator.isEmail(user.email)) errors.push(new Error(INVALID, 'is invalid', 'email'));
+// 	if (!user.name || validator.isEmpty(user.name)) errors.push(new Error(REQUIRED, 'must be provided', 'name'));
+// 	if (!user.type || validator.isEmpty(user.type)) errors.push(new Error(REQUIRED, 'must be provided', 'type'));
+// 	if (errors.length > 0) throw errors;
+// }
 
-/**
- * Validates the user dto.
- * @param {string} code
- * @param {PasswordResetDto} passwordResetDto
- */
-function validatePasswordReset(code, passwordResetDto) {
-	const errors = [];
-	if (!code || validator.isEmpty(code)) errors.push(new Error(REQUIRED, 'must be provided', 'code'));
-	if (!passwordResetDto.password || validator.isEmpty(passwordResetDto.password))
-		errors.push(new Error(REQUIRED, 'must be provided', 'password'));
-	if (!passwordResetDto.passwordRetype || validator.isEmpty(passwordResetDto.passwordRetype))
-		errors.push(new Error(REQUIRED, 'must be provided', 'passwordRetype'));
-	if (passwordResetDto.password !== passwordResetDto.passwordRetype)
-		errors.push(new Error(PASSWORD_MISMATCH, 'passwords do not match', 'password'));
-	if (errors.length > 0) throw errors;
-}
+// /**
+//  * Validates the user dto.
+//  * @param {string} code
+//  * @param {PasswordResetDto} passwordResetDto
+//  */
+// function validatePasswordReset(code, passwordResetDto) {
+// 	const errors = [];
+// 	if (!code || validator.isEmpty(code)) errors.push(new Error(REQUIRED, 'must be provided', 'code'));
+// 	if (!passwordResetDto.password || validator.isEmpty(passwordResetDto.password))
+// 		errors.push(new Error(REQUIRED, 'must be provided', 'password'));
+// 	if (!passwordResetDto.passwordRetype || validator.isEmpty(passwordResetDto.passwordRetype))
+// 		errors.push(new Error(REQUIRED, 'must be provided', 'passwordRetype'));
+// 	if (passwordResetDto.password !== passwordResetDto.passwordRetype)
+// 		errors.push(new Error(PASSWORD_MISMATCH, 'passwords do not match', 'password'));
+// 	if (errors.length > 0) throw errors;
+// }

@@ -1,5 +1,8 @@
 export class AddCompanyDto {
-  name = '';
-  phone = '';
+	name = '';
+	fiscalCode = '';
+	ivaCode = '';
   address = '';
+  inpsRegistrationNumnber = '';
+  inailRegistrationNumber = '';
 }
