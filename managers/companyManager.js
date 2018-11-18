@@ -68,7 +68,7 @@ export class CompanyManager extends BaseCustomerManager {
 		return await super.getAsync(Company, 'company', page, pageLimit, (queryBuilder) => {
 			if (filter)
 				queryBuilder.where(
-					'company.name like :filter or company.address like :filter or company.phone like :filter',
+					'company.name like :filter or company.address like :filter',
 					{ filter: `%${filter}%` },
 				);
 
