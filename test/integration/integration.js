@@ -4,7 +4,6 @@ import { Customer } from 'Entities/customer';
 function givenIHaveADatabase() {
 	before('GIVEN I have a database', async function() {
 		this.timeout(60000);
-
 		let db = await createDb('sys');
 		try {
 			await db.query('DROP SCHEMA `easy-paghe-test`');

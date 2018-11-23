@@ -1,7 +1,7 @@
 var validator = {
 	name: {
 		presence: true,
-		length: { maximum: 256 },
+		length: { maximum: 255 },
 	},
 	fiscalCode: {
 		format: /^[A-Za-z]{6}[0-9LMNPQRSTUV]{2}[A-Za-z]{1}[0-9LMNPQRSTUV]{2}[A-Za-z]{1}[0-9LMNPQRSTUV]{3}[A-Za-z]{1}$/,
@@ -11,7 +11,7 @@ var validator = {
 		length: { is: 11 },
 	},
 	address: {
-		length: { maximum: 256 },
+		length: { maximum: 255 },
 	},
 	inpsRegistrationNumber: {
 		length: { is: 10 },
