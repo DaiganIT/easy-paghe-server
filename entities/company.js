@@ -1,5 +1,5 @@
-import { Entity, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
-import { Person } from './person';
+import { Entity, Column, OneToMany } from 'typeorm';
+import { CompanyBase } from './companyBase';
 import { CustomerSpecific } from './customerSpecific';
 
 @Entity()
@@ -13,15 +13,12 @@ export class Company extends CustomerSpecific {
 	@Column('varchar', { nullable: true, length: 11 })
 	ivaCode = '';
 
-	@Column('varchar', { nullable: true })
-	address = '';
-
 	@Column('varchar', { nullable: true, length: 10 })
 	inpsRegistrationNumber = '';
 
 	@Column('varchar', { nullable: true, length: 10 })
 	inailRegistrationNumber = '';
 
-	@OneToMany(type => Person, e => e.employer)
-	employees = undefined;
+	@OneToMany(type => CompanyBase, e => e.company, { cascade: true })
+	bases = undefined;
 }

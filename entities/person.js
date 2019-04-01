@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne } from 'typeorm';
-import { Company } from './company';
+import { CompanyBase } from './companyBase';
 import { CustomerSpecific } from './customerSpecific';
 
 @Entity()
@@ -16,6 +16,6 @@ export class Person extends CustomerSpecific {
 	@Column('varchar', { nullable: true })
 	email = undefined;
 
-	@ManyToOne((type) => Company, (c) => c.employees, { nullable: true })
-	company = undefined;
+	@ManyToOne((type) => CompanyBase, (c) => c.employees, { nullable: true })
+	companyBase = undefined;
 }

@@ -23,17 +23,31 @@ router.get('/', async function(req, res) {
   const companies = await companyManager.getAsync(query.filter, query.page, query.pageLimit);
   res.send(companies);
 });
-router.get('/:id', async function(req, res) {
+router.get('/:companyId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
-  const company = await companyManager.getByIdAsync(req.params.id);
+  const company = await companyManager.getByIdAsync(req.params.companyId);
   res.send(company);
 });
-router.get('/:id/employees', async function(req, res) {
+router.get('/:companyId/bases', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
   const query = url.parse(req.url, true).query || {};
 
-  const employees = await companyManager.getEmployeesAsync(req.params.id, query.filter, query.page, query.pageLimit);
+  const company = await companyManager.getBasesAsync(req.params.companyId, query.filter, query.page, query.pageLimit);
+  res.send(company);
+});
+router.get('/:companyId/bases/:companyBaseId/employees', async function(req, res) {
+  const companyManager = new CompanyManager(req.user.customer);
+  const query = url.parse(req.url, true).query || {};
+
+  const company = await companyManager.getBaseEmployeesAsync(req.params.companyBaseId, query.filter, query.page, query.pageLimit);
+  res.send(company);
+});
+router.get('/:companyId/employees', async function(req, res) {
+  const companyManager = new CompanyManager(req.user.customer);
+  const query = url.parse(req.url, true).query || {};
+
+  const employees = await companyManager.getAllEmployeesAsync(req.params.companyId, query.filter, query.page, query.pageLimit);
   res.send(employees);
 });
 router.post('/', async function(req, res) {
@@ -46,38 +60,38 @@ router.post('/', async function(req, res) {
     res.status(400).send(err);
   }
 });
-router.put('/:id', async function(req, res) {
+router.put('/:companyId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
   try {
-    const company = await companyManager.updateAsync(req.params.id, req.body);
+    const company = await companyManager.updateAsync(req.params.companyId, req.body);
     res.status(200).send(company);
   } catch (err) {
     res.status = 400;
     res.send(err);
   }
 });
-router.put('/:id/employees/:employeeId', async function(req, res) {
+router.post('/:companyId/bases/:companyBaseId/employees', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
-  const employees = await companyManager.addEmployeeAsync(req.params.id, req.params.employeeId);
+  const employees = await companyManager.addEmployeeAsync(req.params.companyBaseId, req.body.employeeId);
   res.send(employees);
 });
-router.delete('/:id', async function(req, res) {
+router.delete('/:companyId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
   try {
-    await companyManager.deleteAsync(req.params.id);
+    await companyManager.deleteAsync(req.params.companyId);
     res.status(204).send();
   } catch (err) {
     res.status = 400;
     res.send(err);
   }
 });
-router.delete('/:id/employees/:employeeId', async function(req, res) {
+router.delete('/:companyId/bases/:companyBaseId/employees/:employeeId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
-  await companyManager.removeEmployeeAsync(req.params.id, req.params.employeeId);
+  await companyManager.removeEmployeeAsync(req.params.companyBaseId, req.params.employeeId);
   res.status(200).send();
 });
 

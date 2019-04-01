@@ -1,6 +1,6 @@
 import validate from 'validate.js';
-import { SelectQueryBuilder } from 'typeorm';
 import { Company } from '../entities/company';
+import { CompanyBase } from '../entities/companyBase';
 import { BaseCustomerManager } from './baseCustomerManager';
 import { PersonManager } from './personManager';
 import { Person } from '../entities/person';
@@ -24,11 +24,16 @@ export class CompanyManager extends BaseCustomerManager {
 		const errors = validate(companyModel, addCompanyValidator)
 		if (errors) throw errors;
 
+		const companyMainBase = new CompanyBase();
+		companyMainBase.name = 'Sede Principale';
+		companyMainBase.address = companyModel.address;
+		companyMainBase.customer = this.customer;
+
 		const company = new Company();
 		company.name = companyModel.name;
 		company.fiscalCode = companyModel.fiscalCode;
 		company.ivaCode = companyModel.ivaCode;
-		company.address = companyModel.address;
+		company.bases = [companyMainBase];
 		company.inpsRegistrationNumber = companyModel.inpsRegistrationNumber;
 		company.inailRegistrationNumber = companyModel.inailRegistrationNumber;
 
@@ -41,7 +46,8 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {AddCompanyDto} companyModel
 	 */
 	async updateAsync(id, companyModel) {
-		validateCompany(companyModel);
+		const errors = validate(companyModel, addCompanyValidator)
+		if (errors) throw errors;
 
 		const company = await this.getByIdAsync(id);
 		ompany.name = companyModel.name;
@@ -66,6 +72,8 @@ export class CompanyManager extends BaseCustomerManager {
 		pageLimit = pageLimit || 10;
 
 		return await super.getAsync(Company, 'company', page, pageLimit, (queryBuilder) => {
+			queryBuilder = queryBuilder
+					.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
 			if (filter)
 				queryBuilder.where(
 					'company.name like :filter or company.address like :filter',
@@ -76,7 +84,31 @@ export class CompanyManager extends BaseCustomerManager {
 		});
 	}
 
-	async getEmployeesAsync(id, filter, page, pageLimit) {
+	async getBasesAsync(companyId, filter, page, pageLimit) {
+		page = page || 0;
+		pageLimit = pageLimit || 10;
+
+		return await super.getAsync(
+			CompanyBase,
+			'companyBase',
+			page,
+			pageLimit,
+			(queryBuilder) => {
+				queryBuilder = queryBuilder.where('companyBase.company = :companyId', {
+						companyId: companyId,
+					});
+				if (filter)
+					queryBuilder = queryBuilder.andWhere(
+						'companyBase.name like :filter or companyBase.address like :filter',
+						{ filter: `%${filter}%` },
+					);
+
+				return queryBuilder;
+			},
+		);
+	}
+
+	async getAllEmployeesAsync(companyId, filter, page, pageLimit) {
 		page = page || 0;
 		pageLimit = pageLimit || 10;
 
@@ -85,10 +117,12 @@ export class CompanyManager extends BaseCustomerManager {
 			'person',
 			page,
 			pageLimit,
-			/** @param {SelectQueryBuilder} queryBuilder */ (queryBuilder) => {
-				queryBuilder = queryBuilder.innerJoin('person.company', 'company', 'company.id = :companyId', {
-					companyId: id,
-				});
+			(queryBuilder) => {
+				queryBuilder = queryBuilder
+					.innerJoin('person.companyBase', 'companyBase', 'companyBase.id = person.companyBase')
+					.innerJoin('companyBase.company', 'company', 'company.id = :companyId', {
+						companyId: companyId,
+					});
 				if (filter)
 					queryBuilder = queryBuilder.where(
 						'person.name like :filter or person.address like :filter or person.phone like :filter or person.email like :filter',
@@ -100,48 +134,81 @@ export class CompanyManager extends BaseCustomerManager {
 		);
 	}
 
-	async addEmployeeAsync(id, employeeId) {
-		const company = await this.getByIdAsync(id);
+	async getBaseEmployeesAsync(companyBaseId, filter, page, pageLimit) {
+		page = page || 0;
+		pageLimit = pageLimit || 10;
+
+		return await super.getAsync(
+			Person,
+			'person',
+			page,
+			pageLimit,
+			(queryBuilder) => {
+				queryBuilder = queryBuilder
+					.innerJoin('person.companyBase', 'companyBase', 'companyBase.id = :companyBaseId', {
+						companyBaseId: companyBaseId,
+					});
+				if (filter)
+					queryBuilder = queryBuilder.where(
+						'person.name like :filter or person.address like :filter or person.phone like :filter or person.email like :filter',
+						{ filter: `%${filter}%` },
+					);
+
+				return queryBuilder;
+			},
+		);
+	}
+
+	async addEmployeeAsync(companyBaseId, employeeId) {
+		const companyBase = await this.getBaseByIdAsync(companyBaseId);
 		const personManager = new PersonManager(super.getCustomer());
 		const employee = await personManager.getByIdAsync(employeeId);
 
-		if (!employee || !company) return null;
+		if (!employee || !companyBase) return null;
 
-		employee.company = company;
+		employee.companyBase = companyBase;
 		const db = await UnitOfWorkFactory.createAsync();
 		await db.getRepository(Person).save(employee);
 	}
 
-	async removeEmployeeAsync(id, employeeId) {
-		const company = await this.getByIdAsync(id);
+	async removeEmployeeAsync(companyBaseId, employeeId) {
+		const companyBase = await this.getBaseByIdAsync(companyBaseId);
 		const personManager = new PersonManager(super.getCustomer());
 		const employee = await personManager.getByIdAsync(employeeId);
 
-		if (!employee || !company) return null;
+		if (!employee || !companyBase) return null;
 
-		employee.company = null;
+		employee.companyBase = null;
 		const db = await UnitOfWorkFactory.createAsync();
 		await db.getRepository(Person).save(employee);
 	}
 
 	/**
 	 * Gets a company by id.
-	 * @param {number} id The
+	 * @param {number} companyId The copmany id.
 	 */
-	async getByIdAsync(id) {
-		return await super.getByIdAsync(Company, 'company', id);
+	async getByIdAsync(companyId) {
+		return await super.getByIdAsync(Company, 'company', companyId, (queryBuilder) => {
+			queryBuilder = queryBuilder
+					.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
+			return queryBuilder;
+		});
+	}
+
+	/**
+	 * Gets a company base by id.
+	 * @param {number} companyBaseId The base id.
+	 */
+	async getBaseByIdAsync(companyBaseId) {
+		return await super.getByIdAsync(CompanyBase, 'companyBase', companyBaseId);
 	}
 
 	/**
 	 * Deletes the company by id.
-	 * @param {number} id The user id.
+	 * @param {number} companyId The user id.
 	 */
-	async deleteAsync(id) {
-		return await super.deleteAsync(Company, 'company', id);
+	async deleteAsync(companyId) {
+		// detach all employees first I guess.
+		return await super.deleteAsync(Company, 'company', companyId);
 	}
-}
-
-function isNotNullString(str) {
-	if (str === undefined || str === null) return false;
-	return str.length >= 0;
 }

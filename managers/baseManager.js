@@ -1,4 +1,5 @@
 import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
+import { SelectQueryBuilder } from 'typeorm';
 
 export class BaseManager {
 	/**
@@ -17,7 +18,7 @@ export class BaseManager {
 	 * @param {string} alias The main table alias.
 	 * @param {number} page The page number.
 	 * @param {number} pageLimit The page limit.
-	 * @param {function} queryBuilderFunc The optional query builder func.
+	 * @param {queryBuilderFunc} queryBuilderFunc The optional query builder func.
 	 */
 	async getAsync(target, alias, page, pageLimit, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();
@@ -42,7 +43,7 @@ export class BaseManager {
 	 * @param {string} target The target entity.
 	 * @param {string} alias The main table alias.
 	 * @param {number} id The entity identifier.
-	 * @param {function} queryBuilderFunc The optional query builder func.
+	 * @param {queryBuilderFunc} queryBuilderFunc The optional query builder func.
 	 */
 	async getByIdAsync(target, alias, id, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();
@@ -54,11 +55,17 @@ export class BaseManager {
 	}
 
 	/**
+	 * The queryBuilder addon
+	 *
+	 * @callback queryBuilderFunc
+	 * @param {SelectQueryBuilder} queryBuilderFunc.queryBuilder The optional query builder func.
+	 */
+	/**
 	 * Deletes the entity by id.
 	 * @param {string} target The target entity.
 	 * @param {string} alias The main table alias.
 	 * @param {number} id The entity identifier.
-	 * @param {function} queryBuilderFunc The optional query builder func.
+	 * @param {queryBuilderFunc} queryBuilderFunc The optional query builder func.
 	 */
 	async deleteAsync(target, alias, id, queryBuilderFunc) {
 		const db = await UnitOfWorkFactory.createAsync();

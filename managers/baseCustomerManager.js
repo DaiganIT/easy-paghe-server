@@ -1,4 +1,5 @@
 import { BaseManager } from './baseManager';
+import { SelectQueryBuilder } from 'typeorm';
 
 export class BaseCustomerManager extends BaseManager {
 	/**
@@ -30,21 +31,27 @@ export class BaseCustomerManager extends BaseManager {
 	}
 
 	/**
+	 * The queryBuilder addon
+	 *
+	 * @callback queryBuilderFunc
+	 * @param {SelectQueryBuilder} queryBuilderFunc.queryBuilder The optional query builder func.
+	 */
+	/**
 	 * Gets a list of company for the current user
 	 * @param {string} target The target entity.
 	 * @param {string} alias The main table alias.
-	 * @param {string} filter Text search string.
 	 * @param {number} page Page number.
 	 * @param {number} pageLimit Number of element per page.
+	 * @param {queryBuilderFunc} queryBuilderFunc The query builder.
 	 */
 	async getAsync(target, alias, page, pageLimit, queryBuilderFunc) {
 		return await super.getAsync(target, alias, page, pageLimit, (queryBuilder) => {
 			queryBuilder = queryBuilder
 				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :customerId', { customerId: this.customer.id });
 
-			if(queryBuilderFunc)
+			if (queryBuilderFunc)
 				queryBuilder = queryBuilderFunc(queryBuilder);
-				
+
 			return queryBuilder;
 		});
 	}
@@ -54,11 +61,17 @@ export class BaseCustomerManager extends BaseManager {
 	 * @param {string} target The target entity.
 	 * @param {string} alias The main alias.
 	 * @param {number} id The entity identifier.
+	 * @param {queryBuilderFunc} queryBuilderFunc The query builder.
 	 */
-	async getByIdAsync(target, alias, id) {
+	async getByIdAsync(target, alias, id, queryBuilderFunc) {
 		return await super.getByIdAsync(target, alias, id, (queryBuilder) => {
-			return queryBuilder
+			queryBuilder = queryBuilder
 				.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :customerId', { customerId: this.customer.id });
+
+			if (queryBuilderFunc)
+				queryBuilder = queryBuilderFunc(queryBuilder);
+
+			return queryBuilder;
 		});
 	}
 
