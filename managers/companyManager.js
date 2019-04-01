@@ -6,6 +6,7 @@ import { PersonManager } from './personManager';
 import { Person } from '../entities/person';
 import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 import addCompanyValidator from '../models/validators/addCompanyValidator';
+import addCompanyBaseValidator from '../models/validators/addCompanyBaseValidator';
 
 export class CompanyManager extends BaseCustomerManager {
 	/**
@@ -21,19 +22,26 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {AddCompanyDto} companyModel
 	 */
 	async addAsync(companyModel) {
-		const errors = validate(companyModel, addCompanyValidator)
-		if (errors) throw errors;
+		let errors;
+		const modelErrors = validate(companyModel, addCompanyValidator);
+		if (modelErrors) errors = Object.assign({}, errors, modelErrors);
 
 		const bases = [];
 		if (!!companyModel.bases) {
+			let index = 0;
 			for (const base of companyModel.bases) {
+				const baseErrors = validate(base, addCompanyBaseValidator);
+				if (baseErrors) errors = Object.assign({}, errors, { bases: { [index]: baseErrors }});
+
 				const baseEntity = new CompanyBase();
 				baseEntity.name = base.name;
 				baseEntity.address = base.address;
 				baseEntity.customer = this.customer;
 				bases.push(baseEntity);
+				index++;
 			}
 		}
+		if (errors) throw errors;
 
 		const company = new Company();
 		company.name = companyModel.name;

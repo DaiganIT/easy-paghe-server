@@ -1,7 +1,10 @@
 var validator = {
 	name: {
-		presence: true,
-		length: { maximum: 255 },
+		presence: {
+			allowEmpty: false,
+			message: ';Inserisci un nome'
+		},
+		length: { maximum: 255, tooLong: ';Il nome e troppo lungo' },
 	},
 	fiscalCode: {
 		format: {

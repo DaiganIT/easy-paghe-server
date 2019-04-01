@@ -1,7 +1,7 @@
 import createDb from './testUnitOfWork';
 import { Customer } from 'Entities/customer';
 
-function givenIHaveADatabase() {
+function beforeGivenIHaveADatabase() {
 	before('GIVEN I have a database', async function() {
 		this.timeout(60000);
 		let db = await createDb('sys');
@@ -17,7 +17,7 @@ function givenIHaveADatabase() {
 	});
 }
 
-function givenIHaveACustomer() {
+function beforeGivenIHaveACustomer() {
 	before('GIVEN I have a customer', async function() {
 		const db = await createDb();
 
@@ -30,6 +30,6 @@ function givenIHaveACustomer() {
 }
 
 export const steps = {
-	givenIHaveACustomer,
-	givenIHaveADatabase,
+	beforeGivenIHaveACustomer,
+	beforeGivenIHaveADatabase,
 };
