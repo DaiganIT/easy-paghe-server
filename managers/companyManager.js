@@ -21,6 +21,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {AddCompanyDto} companyModel
 	 */
 	async addAsync(companyModel) {
+		console.log(companyModel);
 		const errors = validate(companyModel, addCompanyValidator)
 		if (errors) throw errors;
 

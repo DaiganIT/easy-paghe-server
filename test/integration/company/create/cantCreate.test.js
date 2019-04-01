@@ -13,11 +13,11 @@ const testCases = [
 		tests: [
 			{
 				value: '',
-				errors: ['Fiscal code is invalid', 'Fiscal code is the wrong length (should be 16 characters)'],
+				errors: ['Fiscal code ;Il codice fiscale non e valido'],
 			},
 			{
 				value: 'test',
-				errors: ['Fiscal code is invalid', 'Fiscal code is the wrong length (should be 16 characters)'],
+				errors: ['Fiscal code ;Il codice fiscale non e valido'],
 			},
 			{
 				value: 'CRTPTR88B21F158K',
@@ -31,11 +31,11 @@ const testCases = [
 		tests: [
 			{
 				value: '',
-				errors: ['Iva code is the wrong length (should be 11 characters)'],
+				errors: ['Iva code ;La partita IVA non e valida'],
 			},
 			{
 				value: 'test',
-				errors: ['Iva code is the wrong length (should be 11 characters)'],
+				errors: ['Iva code ;La partita IVA non e valida'],
 			},
 			{
 				value: '54655645654',
@@ -49,7 +49,7 @@ const testCases = [
 		tests: [
 			{
 				value: 'a'.repeat(256),
-				errors: ['Address is too long (maximum is 255 characters)'],
+				errors: ['Address ;L\'Indirizzo e troppo lungo'],
       },
       {
 				value: '',
@@ -58,20 +58,42 @@ const testCases = [
 		],
   },
   {
-		field: 'inpsRegistrationNumnber',
-		fieldText: 'inps reg number',
+		field: 'inpsRegistrationNumber',
+		fieldText: 'INPS reg number',
 		tests: [
 			{
 				value: '',
-				errors: ['Inps registration number is the wrong length (should be 10 characters)'],
+				errors: ['Inps registration number ;Il Codice INPS non e valido'],
       },
       {
 				value: 'test',
-				errors: ['Address is too long (maximum is 255 characters)'],
+				errors: ['Inps registration number ;Il Codice INPS non e valido', 'Inps registration number ;Il Codice INPS non e valido'],
       },
       {
 				value: '6546',
-				errors: [''],
+				errors: ['Inps registration number ;Il Codice INPS non e valido'],
+      },
+      {
+				value: '6546684456',
+				errors: [],
+			},
+		],
+	},
+	{
+		field: 'inailRegistrationNumber',
+		fieldText: 'INAIL reg number',
+		tests: [
+			{
+				value: '',
+				errors: ['Inail registration number ;Il Codice INAIL non e valido'],
+      },
+      {
+				value: 'test',
+				errors: ['Inail registration number ;Il Codice INAIL non e valido', 'Inail registration number ;Il Codice INAIL non e valido'],
+      },
+      {
+				value: '6546',
+				errors: ['Inail registration number ;Il Codice INAIL non e valido'],
       },
       {
 				value: '6546684456',
@@ -113,9 +135,9 @@ testCases.forEach(function(testCase) {
 					});
 
 					it(`THEN the ${testCase.fieldText} is invalid`, function() {
+						console.log(errors);
             expect(errors).to.have.property(testCase.field);
 						expect(errors[testCase.field]).to.be.an('array');
-            console.log(errors);
 						testCaseTest.errors.forEach(function(expectedError) {
 							expect(errors[testCase.field]).to.include(expectedError);
 						});
