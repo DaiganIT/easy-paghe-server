@@ -24,7 +24,7 @@ function givenIHaveACustomer() {
 		let testCustomer = new Customer();
 		testCustomer.name = 'Test Customer';
 
-		testCustomer = await db.manager.save(testCustomer);
+		testCustomer = await db.getRepository(Customer).save(testCustomer);
 		await db.close();
 	});
 }

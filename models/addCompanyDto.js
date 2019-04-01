@@ -2,7 +2,12 @@ export class AddCompanyDto {
 	name = '';
 	fiscalCode = '';
 	ivaCode = '';
-  address = '';
+  bases = [];
   inpsRegistrationNumnber = '';
   inailRegistrationNumber = '';
+}
+
+export class AddCompanyBaseDto {
+  name = '';
+  address = '';
 }

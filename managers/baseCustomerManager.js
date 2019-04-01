@@ -13,6 +13,9 @@ export class BaseCustomerManager extends BaseManager {
 	 */
 	constructor(customer) {
 		super();
+		if (!customer)
+			throw 'Customer is not defined';
+
 		this.customer = customer;
 	}
 

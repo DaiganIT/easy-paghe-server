@@ -12,9 +12,6 @@ var validator = {
 	ivaCode: {
 		length: { is: 11, wrongLength: ';La partita IVA non e valida' },
 	},
-	address: {
-		length: { maximum: 255, tooLong: ';L\'Indirizzo e troppo lungo' },
-	},
 	inpsRegistrationNumber: {
 		length: { is: 10, wrongLength: ';Il Codice INPS non e valido' },
 		numericality: {

@@ -24,8 +24,8 @@ const testCases = [
 				errors: [],
 			},
 		],
-  },
-  {
+	},
+	{
 		field: 'ivaCode',
 		fieldText: 'iva code',
 		tests: [
@@ -42,38 +42,24 @@ const testCases = [
 				errors: [],
 			},
 		],
-  },
-  {
-		field: 'address',
-		fieldText: 'address',
-		tests: [
-			{
-				value: 'a'.repeat(256),
-				errors: ['Address ;L\'Indirizzo e troppo lungo'],
-      },
-      {
-				value: '',
-				errors: [],
-			},
-		],
-  },
-  {
+	},
+	{
 		field: 'inpsRegistrationNumber',
 		fieldText: 'INPS reg number',
 		tests: [
 			{
 				value: '',
 				errors: ['Inps registration number ;Il Codice INPS non e valido'],
-      },
-      {
+			},
+			{
 				value: 'test',
 				errors: ['Inps registration number ;Il Codice INPS non e valido', 'Inps registration number ;Il Codice INPS non e valido'],
-      },
-      {
+			},
+			{
 				value: '6546',
 				errors: ['Inps registration number ;Il Codice INPS non e valido'],
-      },
-      {
+			},
+			{
 				value: '6546684456',
 				errors: [],
 			},
@@ -86,16 +72,16 @@ const testCases = [
 			{
 				value: '',
 				errors: ['Inail registration number ;Il Codice INAIL non e valido'],
-      },
-      {
+			},
+			{
 				value: 'test',
 				errors: ['Inail registration number ;Il Codice INAIL non e valido', 'Inail registration number ;Il Codice INAIL non e valido'],
-      },
-      {
+			},
+			{
 				value: '6546',
 				errors: ['Inail registration number ;Il Codice INAIL non e valido'],
-      },
-      {
+			},
+			{
 				value: '6546684456',
 				errors: [],
 			},
@@ -103,27 +89,27 @@ const testCases = [
 	},
 ];
 
-testCases.forEach(function(testCase) {
-	describe(`Create Company fails for invalid ${testCase.fieldText}`, function() {
+testCases.forEach(function (testCase) {
+	describe(`Create Company fails for invalid ${testCase.fieldText}`, function () {
 		let testCompany;
 		let errors;
 
 		steps.givenIHaveADatabase();
 		steps.givenIHaveACustomer();
 
-		testCase.tests.forEach(function(testCaseTest) {
-			describe(`GIVEN I have a company dto with ${testCase.fieldText}: ${testCaseTest.value}`, function() {
-				before(function() {
+		testCase.tests.forEach(function (testCaseTest) {
+			describe(`GIVEN I have a company dto with ${testCase.fieldText}: ${testCaseTest.value}`, function () {
+				before(function () {
 					testCompany = {
 						name: 'Test company',
-						[testCase.field]: testCaseTest.value,
+						[testCase.field]: testCaseTest.value
 					};
 				});
 
-				describe('WHEN I use the manager to create the company', function() {
-					before(async function() {
+				describe('WHEN I use the manager to create the company', function () {
+					before(async function () {
 						const db = await createDb();
-						const testCustomer = await db.getRepository(Customer).find()[0];
+						const testCustomer = (await db.getRepository(Customer).find())[0];
 						const companyManager = new CompanyManager(testCustomer);
 
 						try {
@@ -134,17 +120,17 @@ testCases.forEach(function(testCase) {
 						}
 					});
 
-					it(`THEN the ${testCase.fieldText} is invalid`, function() {
+					it(`THEN the ${testCase.fieldText} is invalid`, function () {
 						console.log(errors);
-            expect(errors).to.have.property(testCase.field);
+						expect(errors).to.have.property(testCase.field);
 						expect(errors[testCase.field]).to.be.an('array');
-						testCaseTest.errors.forEach(function(expectedError) {
+						testCaseTest.errors.forEach(function (expectedError) {
 							expect(errors[testCase.field]).to.include(expectedError);
 						});
 					});
 
 					if (testCaseTest.errors.length > 0) {
-						it('THEN the company is not added', async function() {
+						it('THEN the company is not added', async function () {
 							const db = await createDb();
 							const companies = await db.getRepository(Company).find();
 
@@ -152,7 +138,7 @@ testCases.forEach(function(testCase) {
 							await db.close();
 						});
 					} else {
-						it('THEN the company is added', async function() {
+						it('THEN the company is added', async function () {
 							const db = await createDb();
 							const companies = await db.getRepository(Company).find();
 

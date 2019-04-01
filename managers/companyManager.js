@@ -21,20 +21,25 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {AddCompanyDto} companyModel
 	 */
 	async addAsync(companyModel) {
-		console.log(companyModel);
 		const errors = validate(companyModel, addCompanyValidator)
 		if (errors) throw errors;
 
-		const companyMainBase = new CompanyBase();
-		companyMainBase.name = 'Sede Principale';
-		companyMainBase.address = companyModel.address;
-		companyMainBase.customer = this.customer;
+		const bases = [];
+		if (!!companyModel.bases) {
+			for (const base of companyModel.bases) {
+				const baseEntity = new CompanyBase();
+				baseEntity.name = base.name;
+				baseEntity.address = base.address;
+				baseEntity.customer = this.customer;
+				bases.push(baseEntity);
+			}
+		}
 
 		const company = new Company();
 		company.name = companyModel.name;
 		company.fiscalCode = companyModel.fiscalCode;
 		company.ivaCode = companyModel.ivaCode;
-		company.bases = [companyMainBase];
+		company.bases = bases;
 		company.inpsRegistrationNumber = companyModel.inpsRegistrationNumber;
 		company.inailRegistrationNumber = companyModel.inailRegistrationNumber;
 
@@ -74,7 +79,7 @@ export class CompanyManager extends BaseCustomerManager {
 
 		return await super.getAsync(Company, 'company', page, pageLimit, (queryBuilder) => {
 			queryBuilder = queryBuilder
-					.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
+				.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
 			if (filter)
 				queryBuilder.where(
 					'company.name like :filter or company.address like :filter',
@@ -96,8 +101,8 @@ export class CompanyManager extends BaseCustomerManager {
 			pageLimit,
 			(queryBuilder) => {
 				queryBuilder = queryBuilder.where('companyBase.company = :companyId', {
-						companyId: companyId,
-					});
+					companyId: companyId,
+				});
 				if (filter)
 					queryBuilder = queryBuilder.andWhere(
 						'companyBase.name like :filter or companyBase.address like :filter',
@@ -191,7 +196,7 @@ export class CompanyManager extends BaseCustomerManager {
 	async getByIdAsync(companyId) {
 		return await super.getByIdAsync(Company, 'company', companyId, (queryBuilder) => {
 			queryBuilder = queryBuilder
-					.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
+				.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
 			return queryBuilder;
 		});
 	}
