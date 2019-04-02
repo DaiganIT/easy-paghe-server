@@ -30,13 +30,51 @@ export const whenIUpdateTheCompanyAsync = async (companyId, company, setErrors) 
   }
 };
 
-export const whenIGetListAsync = async (filter, page, pageLimit) => {
+export const whenIGetListAsync = async (filter, page, pageLimit, setErrors) => {
   const [db, companyManager] = await createCompanyManagerAsync();
 
   try {
     let companies = await companyManager.getAsync(filter, page, pageLimit);
     await db.close();
     return companies;
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
+export const addEmployeeAsync = async (companyBaseId, personId, setErrors) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    await companyManager.addEmployeeAsync(companyBaseId, personId);
+    await db.close();
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
+export const whenIGetListOfAllEmployeesAsync = async (companyId, filter, page, pageLimit, setErrors) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    const employees = await companyManager.getAllEmployeesAsync(companyId, filter, page, pageLimit);
+    await db.close();
+    return employees;
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
+export const whenIGetListOfBaseEmployeesAsync = async (companyBaseId, filter, page, pageLimit, setErrors) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    const employees = await companyManager.getBaseEmployeesAsync(companyBaseId, filter, page, pageLimit);
+    await db.close();
+    return employees;
   } catch (err) {
     console.log(err);
     if (setErrors) setErrors(err);

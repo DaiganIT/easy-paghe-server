@@ -29,13 +29,6 @@ router.get('/:companyId', async function(req, res) {
   const company = await companyManager.getByIdAsync(req.params.companyId);
   res.send(company);
 });
-router.get('/:companyId/bases', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
-  const query = url.parse(req.url, true).query || {};
-
-  const company = await companyManager.getBasesAsync(req.params.companyId, query.filter, query.page, query.pageLimit);
-  res.send(company);
-});
 router.get('/:companyId/bases/:companyBaseId/employees', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
   const query = url.parse(req.url, true).query || {};

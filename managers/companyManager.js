@@ -80,34 +80,14 @@ export class CompanyManager extends BaseCustomerManager {
 		});
 	}
 
-	async getBasesAsync(companyId, filter, page, pageLimit) {
-		page = page || 0;
-		pageLimit = pageLimit || 10;
-
-		return await super.getAsync(
-			CompanyBase,
-			'companyBase',
-			page,
-			pageLimit,
-			(queryBuilder) => {
-				queryBuilder = queryBuilder.where('companyBase.company = :companyId', {
-					companyId: companyId,
-				});
-				if (filter)
-					queryBuilder = queryBuilder.andWhere(
-						'companyBase.name like :filter or companyBase.address like :filter',
-						{ filter: `%${filter}%` },
-					);
-
-				return queryBuilder;
-			},
-		);
-	}
-
+	/**
+	 * Gets the list of all the employees.
+	 * @param {number} companyId The company Id.
+	 * @param {string} filter Text search string.
+	 * @param {number} page Page number.
+	 * @param {number} pageLimit Number of element per page.
+	 */
 	async getAllEmployeesAsync(companyId, filter, page, pageLimit) {
-		page = page || 0;
-		pageLimit = pageLimit || 10;
-
 		return await super.getAsync(
 			Person,
 			'person',
@@ -115,13 +95,15 @@ export class CompanyManager extends BaseCustomerManager {
 			pageLimit,
 			(queryBuilder) => {
 				queryBuilder = queryBuilder
-					.innerJoin('person.companyBase', 'companyBase', 'companyBase.id = person.companyBase')
-					.innerJoin('companyBase.company', 'company', 'company.id = :companyId', {
+					.innerJoin('person.companyBase', 'companyBase', 'companyBase.id = person.companyBase && companyBase.company = :companyId', {
 						companyId: companyId,
 					});
 				if (filter)
 					queryBuilder = queryBuilder.where(
-						'person.name like :filter or person.address like :filter or person.phone like :filter or person.email like :filter',
+						`person.name like :filter 
+						or person.address like :filter 
+						or person.phone like :filter 
+						or person.email like :filter`,
 						{ filter: `%${filter}%` },
 					);
 
@@ -130,10 +112,14 @@ export class CompanyManager extends BaseCustomerManager {
 		);
 	}
 
+	/**
+	 * Gets the list of employees for the base.
+	 * @param {number} companyBaseId The company base id.
+	 * @param {string} filter Text search string.
+	 * @param {number} page Page number.
+	 * @param {number} pageLimit Number of element per page.
+	 */
 	async getBaseEmployeesAsync(companyBaseId, filter, page, pageLimit) {
-		page = page || 0;
-		pageLimit = pageLimit || 10;
-
 		return await super.getAsync(
 			Person,
 			'person',
