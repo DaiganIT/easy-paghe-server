@@ -1,22 +1,37 @@
 
 import { expect } from 'chai';
 
-import createDb from '../../testUnitOfWork';
+import createDb from '../testUnitOfWork';
 import { Customer } from 'Entities/customer';
 import { Company } from 'Entities/company';
 import { CompanyManager } from 'Managers/companyManager';
 
 export const whenICreateTheCompanyAsync = async (company, setErrors) => {
-    const db = await createDb();
-    const testCustomer = (await db.getRepository(Customer).find())[0];
-    const companyManager = new CompanyManager(testCustomer);
+  const db = await createDb();
+  const testCustomer = (await db.getRepository(Customer).find())[0];
+  const companyManager = new CompanyManager(testCustomer);
 
-    try {
-      await companyManager.addAsync(company);
-      await db.close();
-    } catch (err) {
-      if(setErrors) setErrors(err);
-    }
+  try {
+    await companyManager.addAsync(company);
+    await db.close();
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+};
+
+export const whenIUpdateTheCompanyAsync = async (companyId, company, setErrors) => {
+  const db = await createDb();
+  const testCustomer = (await db.getRepository(Customer).find())[0];
+  const companyManager = new CompanyManager(testCustomer);
+
+  try {
+    await companyManager.updateAsync(companyId, company);
+    await db.close();
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
 };
 
 export const thenTheCompanyIsNotAdded = () => {

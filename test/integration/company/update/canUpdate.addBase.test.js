@@ -20,18 +20,39 @@ const companyIn = {
   }]
 }
 
+const companyUpdate = {
+  id: 1,
+  name: 'The name updated',
+  fiscalCode: 'CRTPTR88B21F158S',
+  ivaCode: '45612345654',
+  inpsRegistrationNumber: '4561237893',
+  inailRegistrationNumber: '4567891232',
+  bases: [{
+    id: 1,
+    name: 'Main Base updated',
+    address: 'The main address updated'
+  }, {
+    id: 2,
+    name: 'Additional Base updated',
+    address: 'The additional address updated',
+  },{
+    name: 'Third base',
+    address: 'The third address',
+  }]
+}
+
 const companyOut = {
   id: 1,
-  name: 'The name',
-  fiscalCode: 'CRTPTR88B21F158K',
-  ivaCode: '45612345655',
-  inpsRegistrationNumber: '4561237892',
-  inailRegistrationNumber: '4567891234',
+  name: 'The name updated',
+  fiscalCode: 'CRTPTR88B21F158S',
+  ivaCode: '45612345654',
+  inpsRegistrationNumber: '4561237893',
+  inailRegistrationNumber: '4567891232',
   bases: [
     {
       id: 1,
-      name: 'Main Base',
-      address: 'The main address',
+      name: 'Main Base updated',
+      address: 'The main address updated',
       employees: undefined,
       company: undefined,
       customer: {
@@ -41,8 +62,19 @@ const companyOut = {
     },
     {
       id: 2,
-      name: 'Additional Base',
-      address: 'The additional address',
+      name: 'Additional Base updated',
+      address: 'The additional address updated',
+      employees: undefined,
+      company: undefined,
+      customer: {
+        id: 1,
+        name: 'Test Customer'
+      }
+    },
+    {
+      id: 3,
+      name: 'Third base',
+      address: 'The third address',
       employees: undefined,
       company: undefined,
       customer: {
@@ -64,11 +96,14 @@ describe('GIVEN I have a company DTO', function () {
   before('GIVEN I have a customer', async function () {
     await integrationSteps.givenIHaveACustomerAsync();
   });
-  before('WHEN I use the manager to create the company', async function () {
+  before('GIVEN I have a company', async () => {
     await companySteps.whenICreateTheCompanyAsync(companyIn);
   });
+  before('WHEN I update the company', async () => {
+    await companySteps.whenIUpdateTheCompanyAsync(1, companyUpdate);
+  });
 
-  it('THEN the company is added', async function () {
+  it('THEN the company is updated', async function () {
     const db = await createDb();
     const companies = await db.getRepository(Company).createQueryBuilder('company')
       .leftJoinAndSelect('company.bases', 'bases')
@@ -77,8 +112,8 @@ describe('GIVEN I have a company DTO', function () {
       .getMany();
 
     expect(companies).to.have.lengthOf(1);
-    const addedCompany = companies[0];
-    expect(addedCompany).to.deep.equal(companyOut);
+    const updatedCompany = companies[0];
+    expect(updatedCompany).to.deep.equal(companyOut);
 
     await db.close();
   });

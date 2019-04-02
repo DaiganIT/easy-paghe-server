@@ -31,7 +31,7 @@ export class CompanyManager extends BaseCustomerManager {
 			let index = 0;
 			for (const base of companyModel.bases) {
 				const baseErrors = validate(base, addCompanyBaseValidator);
-				if (baseErrors) errors = Object.assign({}, errors, { bases: { [index]: baseErrors }});
+				if (baseErrors) errors = Object.assign({}, errors, { bases: { [index]: baseErrors } });
 
 				const baseEntity = new CompanyBase();
 				baseEntity.name = base.name;
@@ -60,14 +60,45 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {AddCompanyDto} companyModel
 	 */
 	async updateAsync(id, companyModel) {
-		const errors = validate(companyModel, addCompanyValidator)
+		const company = await this.getByIdAsync(id);
+		if (!company)
+			throw 'Azienda non trovata';
+
+		if (companyModel.bases.length < company.bases.length || basesAreNotTheSame(companyModel.bases, company.bases))
+			throw 'Aggiorna azienda non puo essere usato per eliminare sedi';
+
+		let errors;
+		const modelErrors = validate(companyModel, addCompanyValidator);
+		if (modelErrors) errors = Object.assign({}, errors, modelErrors);
+
+		const bases = [];
+		if (!!companyModel.bases) {
+			let index = 0;
+			for (const base of companyModel.bases) {
+				const baseErrors = validate(base, addCompanyBaseValidator);
+				if (baseErrors) errors = Object.assign({}, errors, { bases: { [index]: baseErrors } });
+
+				let baseEntity;
+				const basesById = company.bases.filter(b => b.id === base.id);
+				if (basesById.length === 1) {
+					baseEntity = basesById[0];
+				} else {
+					baseEntity = new CompanyBase();
+					baseEntity.customer = this.customer;
+				}
+
+				baseEntity.name = base.name;
+				baseEntity.address = base.address;
+				bases.push(baseEntity);
+				index++;
+			}
+		}
 		if (errors) throw errors;
 
-		const company = await this.getByIdAsync(id);
-		ompany.name = companyModel.name;
+		company.name = companyModel.name;
 		company.fiscalCode = companyModel.fiscalCode;
 		company.ivaCode = companyModel.ivaCode;
-		company.address = companyModel.address;
+		company.bases = bases;
 		company.inpsRegistrationNumber = companyModel.inpsRegistrationNumber;
 		company.inailRegistrationNumber = companyModel.inailRegistrationNumber;
 
@@ -225,4 +256,14 @@ export class CompanyManager extends BaseCustomerManager {
 		// detach all employees first I guess.
 		return await super.deleteAsync(Company, 'company', companyId);
 	}
+}
+
+function getBasesWithId(bases) {
+	return bases.filter(base => base.id);
+}
+
+function basesAreNotTheSame(companyModelBases, companyBases) {
+	var companyBasesWithId = getBasesWithId(companyBases);
+	var companyModelBasesWithId = getBasesWithId(companyModelBases);
+	return companyBasesWithId.length !== companyModelBasesWithId.length;
 }

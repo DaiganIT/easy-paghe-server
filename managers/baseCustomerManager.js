@@ -29,7 +29,9 @@ export class BaseCustomerManager extends BaseManager {
 	 * @param {CustomerSpecific} entity The entity to save.
 	 */
 	async saveAsync(target, entity) {
-		entity.customer = this.customer;
+		if (!target.id)
+			entity.customer = this.customer;
+			
 		await super.saveAsync(target, entity);
 	}
 
