@@ -22,19 +22,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {AddCompanyDto} companyModel
 	 */
 	async addAsync(companyModel) {
-		let errors;
-		const modelErrors = validate(companyModel, addCompanyValidator);
-		if (modelErrors) errors = Object.assign({}, errors, modelErrors);
-
-		if (!!companyModel.bases) {
-			let index = 0;
-			for (const base of companyModel.bases) {
-				const baseErrors = validate(base, addCompanyBaseValidator);
-				if (baseErrors) errors = Object.assign({}, errors, { bases: { [index]: baseErrors } });
-				index++;
-			}
-		}
-		if (errors) throw errors;
+		validateModel(companyModel);
 
 		const company = new Company();
 		mapCompany(company, companyModel, this.customer);
@@ -52,23 +40,11 @@ export class CompanyManager extends BaseCustomerManager {
 		if (!company)
 			throw 'Azienda non trovata';
 
-		let errors;
-		const modelErrors = validate(companyModel, addCompanyValidator);
-		if (modelErrors) errors = Object.assign({}, errors, modelErrors);
-
-		if (!!companyModel.bases) {
+		if (!!companyModel.bases)
 			if (companyModel.bases.length < company.bases.length || basesAreNotTheSame(companyModel.bases, company.bases))
 				throw 'Aggiorna azienda non puo essere usato per eliminare sedi';
 
-			let index = 0;
-			for (const base of companyModel.bases) {
-				const baseErrors = validate(base, addCompanyBaseValidator);
-				if (baseErrors) errors = Object.assign({}, errors, { bases: { [index]: baseErrors } });
-				index++;
-			}
-		}
-		if (errors) throw errors;
-
+		validateModel(companyModel);
 		mapCompany(company, companyModel, this.customer);
 
 		await super.saveAsync(Company, company);
@@ -267,4 +243,21 @@ function mapCompany(company, companyModel, customer) {
 	company.bases = bases;
 	company.inpsRegistrationNumber = companyModel.inpsRegistrationNumber;
 	company.inailRegistrationNumber = companyModel.inailRegistrationNumber;
+}
+
+function validateModel(companyModel) {
+	let errors;
+	const modelErrors = validate(companyModel, addCompanyValidator);
+	if (modelErrors) errors = Object.assign({}, errors, modelErrors);
+
+	if (!!companyModel.bases) {
+		let index = 0;
+		for (const base of companyModel.bases) {
+			const baseErrors = validate(base, addCompanyBaseValidator);
+			if (baseErrors) errors = Object.assign({}, errors, { bases: { [index]: baseErrors } });
+			index++;
+		}
+	}
+	if (errors) throw errors;
+
 }
