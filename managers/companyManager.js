@@ -64,15 +64,15 @@ export class CompanyManager extends BaseCustomerManager {
 		if (!company)
 			throw 'Azienda non trovata';
 
-		if (companyModel.bases.length < company.bases.length || basesAreNotTheSame(companyModel.bases, company.bases))
-			throw 'Aggiorna azienda non puo essere usato per eliminare sedi';
-
 		let errors;
 		const modelErrors = validate(companyModel, addCompanyValidator);
 		if (modelErrors) errors = Object.assign({}, errors, modelErrors);
 
 		const bases = [];
 		if (!!companyModel.bases) {
+			if (companyModel.bases.length < company.bases.length || basesAreNotTheSame(companyModel.bases, company.bases))
+				throw 'Aggiorna azienda non puo essere usato per eliminare sedi';
+
 			let index = 0;
 			for (const base of companyModel.bases) {
 				const baseErrors = validate(base, addCompanyBaseValidator);

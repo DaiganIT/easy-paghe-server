@@ -2,14 +2,25 @@ import 'babel-polyfill';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import * as companySteps from './steps';
+import * as companySteps from '../steps';
+import * as mocks from '../../mocks';
 
 import { UnitOfWorkFactory } from '../../../../database/unitOfWorkFactory';
-import { CompanyManager } from 'managers/companyManager';
 
-const repository = { save: sinon.spy() }
-const mockDb = { getRepository: () => repository };
-
+const companyIn = {
+  name: 'The name',
+  fiscalCode: 'CRTPTR88B21F158K',
+  ivaCode: '45612345655',
+  inpsRegistrationNumber: '4561237892',
+  inailRegistrationNumber: '4567891234',
+  bases: [{
+    name: 'Main Base',
+    address: 'The main address'
+  }, {
+    name: 'Additional Base',
+    address: 'The additional address',
+  }]
+};
 const nameTests = [
 	{
 		value: '',
@@ -153,25 +164,31 @@ const testCasesBases = [
 	},
 ];
 
-describe('Create Company DTO validation', () => {
+describe('Update Company DTO validation', () => {
 	before(() => {
 		sinon.stub(UnitOfWorkFactory, 'createAsync')
-			.returns(new Promise(r => r(mockDb)));
+			.returns(new Promise(r => r(mocks.mockDb)));
 	});
+  after(() => {
+		UnitOfWorkFactory.createAsync.restore();
+  });
 
 	nameTests.forEach(function (testCase) {
 		let testCompany;
 		let errors;
 
 		describe(`GIVEN I have a company dto with name: ${testCase.value}`, function () {
+      before(() => {
+        mocks.queryBuilder.getOne = () => companyIn;
+      });
 			before(() => {
-				repository.save.resetHistory();
+				mocks.repository.save.resetHistory();
 			});
-			before('WHEN I use the manager to create the company', async function () {
+			before('WHEN I use the manager to update the company', async function () {
 				testCompany = {
 					name: testCase.value,
 				};
-				await companySteps.whenICreateTheCompanyAsync(testCompany, err => errors = err);
+				await companySteps.whenIUpdateTheCompanyAsync(1, testCompany, err => errors = err);
 			});
 
 			if (testCase.errors.length > 0) {
@@ -183,12 +200,12 @@ describe('Create Company DTO validation', () => {
 					});
 				});
 
-				it('THEN the company is not added', async function () {
-					expect(repository.save.called).to.be.false;
+				it('THEN the company is not updated', async function () {
+					expect(mocks.repository.save.called).to.be.false;
 				});
 			} else {
-				it('THEN the company is added', async function () {
-					expect(repository.save.called).to.be.true;
+				it('THEN the company is updated', async function () {
+					expect(mocks.repository.save.called).to.be.true;
 				});
 			}
 		});
@@ -197,18 +214,21 @@ describe('Create Company DTO validation', () => {
 	fieldsTestCases.forEach(function (testCase) {
 		let testCompany;
 		let errors;
-		describe(`Create Company fails for invalid ${testCase.fieldText}`, function () {
+		describe(`Update Company fails for invalid ${testCase.fieldText}`, function () {
 			testCase.tests.forEach(function (testCaseTest) {
 				describe(`GIVEN I have a company dto with ${testCase.fieldText}: ${testCaseTest.value}`, function () {
+          before(() => {
+            mocks.queryBuilder.getOne = () => companyIn;
+          });
 					before(() => {
-						repository.save.resetHistory();
+						mocks.repository.save.resetHistory();
 					});
-					before('WHEN I use the manager to create the company', async function () {
+					before('WHEN I use the manager to update the company', async function () {
 						testCompany = {
 							name: 'Test company',
 							[testCase.field]: testCaseTest.value
 						};
-						await companySteps.whenICreateTheCompanyAsync(testCompany, err => errors = err);
+						await companySteps.whenIUpdateTheCompanyAsync(1, testCompany, err => errors = err);
 					});
 
 					if (testCaseTest.errors.length > 0) {
@@ -221,12 +241,12 @@ describe('Create Company DTO validation', () => {
 							});
 						});
 
-						it('THEN the company is not added', async function () {
-							expect(repository.save.called).to.be.false;
+						it('THEN the company is not updated', async function () {
+							expect(mocks.repository.save.called).to.be.false;
 						});
 					} else {
-						it('THEN the company is added', async function () {
-							expect(repository.save.called).to.be.true;
+						it('THEN the company is updated', async function () {
+							expect(mocks.repository.save.called).to.be.true;
 						});
 					}
 				});
@@ -239,16 +259,19 @@ describe('Create Company DTO validation', () => {
 		let errors;
 		describe(`GIVEN I have a company dto with base name: ${testCase.value}`, function () {
 			before(() => {
-				repository.save.resetHistory();
+        mocks.queryBuilder.getOne = () => companyIn;
+      });
+      before(() => {
+				mocks.repository.save.resetHistory();
 			});
-			before('WHEN I use the manager to create the company', async function () {
+			before('WHEN I use the manager to update the company', async function () {
 				testCompany = {
 					name: 'Test company',
 					bases: [{
 						name: testCase.value,
 					}]
 				};
-				await companySteps.whenICreateTheCompanyAsync(testCompany, err => errors = err);
+				await companySteps.whenIUpdateTheCompanyAsync(1, testCompany, err => errors = err);
 			});
 
 			if (testCase.errors.length > 0) {
@@ -262,28 +285,31 @@ describe('Create Company DTO validation', () => {
 					});
 				});
 
-				it('THEN the company is not added', async function () {
-					expect(repository.save.called).to.be.false;
+				it('THEN the company is not updated', async function () {
+					expect(mocks.repository.save.called).to.be.false;
 				});
 			} else {
-				it('THEN the company is added', async function () {
-					expect(repository.save.called).to.be.true;
+				it('THEN the company is updated', async function () {
+					expect(mocks.repository.save.called).to.be.true;
 				});
 			}
 		});
 	});
 
 	testCasesBases.forEach(testCase => {
-		describe(`Create Company fails for invalid base ${testCase.fieldText}`, function () {
+		describe(`Update Company fails for invalid base ${testCase.fieldText}`, function () {
 			let testCompany;
 			let errors;
 
 			testCase.tests.forEach(function (testCaseTest) {
 				describe(`GIVEN I have a company dto with base ${testCase.fieldText}: ${testCaseTest.value}`, function () {
 					before(() => {
-						repository.save.resetHistory();
+            mocks.queryBuilder.getOne = () => companyIn;
+          });
+					before(() => {
+						mocks.repository.save.resetHistory();
 					});
-					before('WHEN I use the manager to create the company', async function () {
+					before('WHEN I use the manager to update the company', async function () {
 						testCompany = {
 							name: 'Test company',
 							bases: [{
@@ -291,7 +317,7 @@ describe('Create Company DTO validation', () => {
 								[testCase.field]: testCaseTest.value
 							}]
 						};
-						await companySteps.whenICreateTheCompanyAsync(testCompany, err => errors = err);
+						await companySteps.whenIUpdateTheCompanyAsync(1, testCompany, err => errors = err);
 					});
 
 					if (testCaseTest.errors.length > 0) {
@@ -305,33 +331,16 @@ describe('Create Company DTO validation', () => {
 							});
 						});
 
-						it('THEN the company is not added', async function () {
-							expect(repository.save.called).to.be.false;
+						it('THEN the company is not updated', async function () {
+							expect(mocks.repository.save.called).to.be.false;
 						});
 					} else {
-						it('THEN the company is added', async function () {
-							expect(repository.save.called).to.be.true;
+						it('THEN the company is updated', async function () {
+							expect(mocks.repository.save.called).to.be.true;
 						});
 					}
 				});
 			});
-		});
-	});
-});
-
-describe(`Cannot create Company Manager without a Customer`, function () {
-	let errors;
-
-	describe('WHEN I create the company manager', () => {
-		try {
-			new CompanyManager(null);
-		} catch (err) {
-			errors = err;
-		}
-
-		it('THEN An error is thrown', () => {
-			expect(errors).to.be.ok;
-			expect(errors).to.equal('Customer is not defined');
 		});
 	});
 });
