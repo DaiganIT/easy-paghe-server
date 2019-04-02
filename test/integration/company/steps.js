@@ -7,9 +7,7 @@ import { Company } from 'Entities/company';
 import { CompanyManager } from 'Managers/companyManager';
 
 export const whenICreateTheCompanyAsync = async (company, setErrors) => {
-  const db = await createDb();
-  const testCustomer = (await db.getRepository(Customer).find())[0];
-  const companyManager = new CompanyManager(testCustomer);
+  const [db, companyManager] = await createCompanyManagerAsync();
 
   try {
     await companyManager.addAsync(company);
@@ -21,9 +19,7 @@ export const whenICreateTheCompanyAsync = async (company, setErrors) => {
 };
 
 export const whenIUpdateTheCompanyAsync = async (companyId, company, setErrors) => {
-  const db = await createDb();
-  const testCustomer = (await db.getRepository(Customer).find())[0];
-  const companyManager = new CompanyManager(testCustomer);
+  const [db, companyManager] = await createCompanyManagerAsync();
 
   try {
     await companyManager.updateAsync(companyId, company);
@@ -33,6 +29,25 @@ export const whenIUpdateTheCompanyAsync = async (companyId, company, setErrors) 
     if (setErrors) setErrors(err);
   }
 };
+
+export const whenIGetListAsync = async (filter, page, pageLimit) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    let companies = await companyManager.getAsync(filter, page, pageLimit);
+    await db.close();
+    return companies;
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
+async function createCompanyManagerAsync() {
+  const db = await createDb();
+  const testCustomer = (await db.getRepository(Customer).find())[0];
+  return [db, new CompanyManager(testCustomer)];
+}
 
 export const thenTheCompanyIsNotAdded = () => {
   it('THEN the company is not added', async function () {

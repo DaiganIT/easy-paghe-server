@@ -21,14 +21,16 @@ export class BaseManager {
 	 * @param {queryBuilderFunc} queryBuilderFunc The optional query builder func.
 	 */
 	async getAsync(target, alias, page, pageLimit, queryBuilderFunc) {
+		page = page || 1;
+		pageLimit = pageLimit || 10;
+		
 		const db = await UnitOfWorkFactory.createAsync();
 		let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
 
 		if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
-
 		const length = await queryBuilder.getCount();
 		const data = await queryBuilder
-			.skip(page * pageLimit)
+			.skip((page-1) * pageLimit)
 			.take(pageLimit)
 			.getMany();
 

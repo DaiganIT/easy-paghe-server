@@ -19,7 +19,8 @@ export class CompanyManager extends BaseCustomerManager {
 
 	/**
 	 * Creates a new company.
-	 * @param {AddCompanyDto} companyModel
+	 * @param {AddCompanyDto} companyModel The company create model.
+	 * @throws for validation.
 	 */
 	async addAsync(companyModel) {
 		validateModel(companyModel);
@@ -32,8 +33,11 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	/**
-	 * Updates an existing company
-	 * @param {AddCompanyDto} companyModel
+	 * Updates an existing company.
+	 * New bases will be added, but existing one won't be deleted.
+	 * @param {number} companyId The company id.
+	 * @param {AddCompanyDto} companyModel The company update model.
+	 * @throws for validation or missing company or trying to delete a base.
 	 */
 	async updateAsync(id, companyModel) {
 		const company = await this.getByIdAsync(id);
@@ -52,21 +56,23 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	/**
-	 * Gets a list of company for the current user
+	 * Gets a list of company for the current user.
 	 * @param {string} filter Text search string.
 	 * @param {number} page Page number.
 	 * @param {number} pageLimit Number of element per page.
 	 */
 	async getAsync(filter, page, pageLimit) {
-		page = page || 0;
-		pageLimit = pageLimit || 10;
-
 		return await super.getAsync(Company, 'company', page, pageLimit, (queryBuilder) => {
-			queryBuilder = queryBuilder
-				.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
+			queryBuilder = getQueryBuilder(queryBuilder);
 			if (filter)
 				queryBuilder.where(
-					'company.name like :filter or company.address like :filter',
+					`company.name like :filter
+					or company.fiscalCode like :filter
+					or company.ivaCode like :filter
+					or company.inpsRegistrationNumber like :filter
+					or company.inailRegistrationNumber like :filter
+					or companyBase.name like :filter
+					or companyBase.address like :filter`,
 					{ filter: `%${filter}%` },
 				);
 
@@ -179,9 +185,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 */
 	async getByIdAsync(companyId) {
 		return await super.getByIdAsync(Company, 'company', companyId, (queryBuilder) => {
-			queryBuilder = queryBuilder
-				.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
-			return queryBuilder;
+			return getQueryBuilder(queryBuilder);
 		});
 	}
 
@@ -201,6 +205,11 @@ export class CompanyManager extends BaseCustomerManager {
 		// detach all employees first I guess.
 		return await super.deleteAsync(Company, 'company', companyId);
 	}
+}
+
+function getQueryBuilder(queryBuilder) {
+	return queryBuilder
+		.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
 }
 
 function getBasesWithId(bases) {
