@@ -70,6 +70,12 @@ router.post('/:companyId/bases/:companyBaseId/employees', async function(req, re
   const employees = await companyManager.addEmployeeAsync(req.params.companyBaseId, req.body.employeeId);
   res.send(employees);
 });
+router.delete('/:companyId/bases/:companyBaseId/employees/:employeeId', async function(req, res) {
+  const companyManager = new CompanyManager(req.user.customer);
+
+  await companyManager.removeEmployeeAsync(req.params.companyBaseId, req.params.employeeId);
+  res.status(200).send();
+});
 router.delete('/:companyId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
@@ -81,11 +87,16 @@ router.delete('/:companyId', async function(req, res) {
     res.send(err);
   }
 });
-router.delete('/:companyId/bases/:companyBaseId/employees/:employeeId', async function(req, res) {
+router.delete('/:companyId/bases/:companyBaseId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
-  await companyManager.removeEmployeeAsync(req.params.companyBaseId, req.params.employeeId);
-  res.status(200).send();
+  try {
+    await companyManager.deleteBaseAsync(req.params.companyBaseId);
+    res.status(204).send();
+  } catch (err) {
+    res.status = 400;
+    res.send(err);
+  }
 });
 
 export default router;
