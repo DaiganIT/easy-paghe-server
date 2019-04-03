@@ -5,10 +5,7 @@ import passport from 'passport';
 import bodyParser from 'body-parser';
 import path from 'path';
 import initPassportStrategy from './auth';
-import loginRoutes from './routes/loginRoutes';
-import userRoutes from './routes/userRoutes';
-import companyRoutes from './routes/companyRoutes';
-import personRoutes from './routes/personRoutes';
+import useRoutes from './routes/routes';
 
 const app = express();
 
@@ -26,11 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 initPassportStrategy();
-
-app.use('/api/auth', loginRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/companies', companyRoutes);
-app.use('/api/people', personRoutes);
+useRoutes(app);
 
 app.get('*', function(request, response) {
   response.sendFile(path.resolve('../easy-paghe/dist', 'index.html'));
