@@ -1,12 +1,9 @@
 import 'babel-polyfill';
 import { expect } from 'chai';
 
-import { Person } from 'entities/person';
-
 import * as integrationSteps from '../../integration';
 import * as companySteps from '../steps';
 import * as personSteps from '../../people/steps';
-import createDb from '../../testUnitOfWork';
 
 const company = {
   name: 'Company name',
@@ -52,7 +49,7 @@ describe('GIVEN I have a company DTO', function () {
     await companySteps.addEmployeeAsync(3, 1, (err) => errors = err);
   });
 
-  it('THEN The person is not added', async () => {
+  it('THEN The person is not added', () => {
     expect(errors).to.equal('Questo persona ha gia un altro lavoro');
   });
 });
@@ -76,7 +73,7 @@ describe('GIVEN I have a company DTO', function () {
     await companySteps.addEmployeeAsync(2, 3, (err) => errors = err);
   });
 
-  it('THEN The person is not added', async () => {
+  it('THEN The person is not added', () => {
     expect(errors).to.equal('Impossibile trovare la persona');
   });
 });
@@ -100,7 +97,7 @@ describe('GIVEN I have a company DTO', function () {
     await companySteps.addEmployeeAsync(10, 1, (err) => errors = err);
   });
 
-  it('THEN The person is not added', async () => {
+  it('THEN The person is not added', () => {
     expect(errors).to.equal('Impossibile trovare la sede dell\'azienda');
   });
 });

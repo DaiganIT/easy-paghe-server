@@ -151,17 +151,17 @@ export class CompanyManager extends BaseCustomerManager {
 		const personManager = new PersonManager(super.getCustomer());
 		const person = await personManager.getByIdAsync(personId);
 
-		if (!person) 
+		if (!person)
 			throw 'Impossibile trovare la persona';
-		
+
 		if (person.companyBase) {
 			// if person is only moving between bases of the same company, then it's ok
 			const currentCompanyBase = await this.getBaseByIdAsync(person.companyBase.id);
 			if (currentCompanyBase.company.id !== companyBase.company.id)
 				throw 'Questo persona ha gia un altro lavoro';
 		}
-		
-		if (!companyBase) 
+
+		if (!companyBase)
 			throw 'Impossibile trovare la sede dell\'azienda';
 
 		person.companyBase = companyBase;
@@ -173,9 +173,9 @@ export class CompanyManager extends BaseCustomerManager {
 		const personManager = new PersonManager(super.getCustomer());
 		const employee = await personManager.getByIdAsync(employeeId);
 
-		if (!employee) 
+		if (!employee)
 			throw 'Impossibile trovare la persona';
-		
+
 		if (!employee.companyBase)
 			throw 'Questo persona non ha un lavoro';
 
@@ -188,9 +188,9 @@ export class CompanyManager extends BaseCustomerManager {
 	 * Gets a company by id.
 	 * @param {number} companyId The copmany id.
 	 */
-	async getByIdAsync(companyId) {
+	async getByIdAsync(companyId, withEmployees) {
 		return await super.getByIdAsync(Company, 'company', companyId, (queryBuilder) => {
-			return getQueryBuilder(queryBuilder);
+			return getQueryBuilder(queryBuilder, withEmployees);
 		});
 	}
 
@@ -198,10 +198,17 @@ export class CompanyManager extends BaseCustomerManager {
 	 * Gets a company base by id.
 	 * @param {number} companyBaseId The base id.
 	 */
-	async getBaseByIdAsync(companyBaseId) {
+	async getBaseByIdAsync(companyBaseId, withEmployees) {
 		return await super.getByIdAsync(CompanyBase, 'companyBase', companyBaseId, (queryBuilder) => {
-			return queryBuilder
+			queryBuilder = queryBuilder
 				.innerJoinAndSelect('companyBase.company', 'company');
+
+			if (withEmployees) {
+				queryBuilder = queryBuilder
+					.leftJoinAndSelect('companyBase.employees', 'employee');
+			}
+
+			return queryBuilder;
 		});
 	}
 
@@ -215,9 +222,16 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 }
 
-function getQueryBuilder(queryBuilder) {
-	return queryBuilder
+function getQueryBuilder(queryBuilder, withEmployees) {
+	queryBuilder = queryBuilder
 		.leftJoinAndSelect('company.bases', 'companyBase');
+
+	if (withEmployees) {
+		queryBuilder = queryBuilder
+			.leftJoinAndSelect('companyBase.employees', 'employee');
+	}
+
+	return queryBuilder;
 }
 
 function getBasesWithId(bases) {
