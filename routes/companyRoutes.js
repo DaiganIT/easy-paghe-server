@@ -26,7 +26,7 @@ router.get('/', async function(req, res) {
 router.get('/:companyId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
 
-  const company = await companyManager.getByIdAsync(req.params.companyId);
+  const company = await companyManager.getByIdAsync(req.params.companyId, true);
   res.send(company);
 });
 router.get('/:companyId/bases/:companyBaseId/employees', async function(req, res) {
