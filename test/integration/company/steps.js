@@ -55,6 +55,18 @@ export const addEmployeeAsync = async (companyBaseId, personId, setErrors) => {
   }
 }
 
+export const removeEmployeeAsync = async (personId, setErrors) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    await companyManager.removeEmployeeAsync(personId);
+    await db.close();
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
 export const whenIGetListOfAllEmployeesAsync = async (companyId, filter, page, pageLimit, setErrors) => {
   const [db, companyManager] = await createCompanyManagerAsync();
 

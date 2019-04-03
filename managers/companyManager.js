@@ -169,12 +169,15 @@ export class CompanyManager extends BaseCustomerManager {
 		await db.getRepository(Person).save(person);
 	}
 
-	async removeEmployeeAsync(companyBaseId, employeeId) {
-		const companyBase = await this.getBaseByIdAsync(companyBaseId);
+	async removeEmployeeAsync(employeeId) {
 		const personManager = new PersonManager(super.getCustomer());
 		const employee = await personManager.getByIdAsync(employeeId);
 
-		if (!employee || !companyBase) return null;
+		if (!employee) 
+			throw 'Impossibile trovare la persona';
+		
+		if (!employee.companyBase)
+			throw 'Questo persona non ha un lavoro';
 
 		employee.companyBase = null;
 		const db = await UnitOfWorkFactory.createAsync();
