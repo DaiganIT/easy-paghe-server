@@ -68,7 +68,9 @@ export class PersonManager extends BaseCustomerManager {
 	 * @param {number} id The person id.
 	 */
 	async getByIdAsync(id) {
-		return await super.getByIdAsync(Person, 'person', id);
+		return await super.getByIdAsync(Person, 'person', id, (queryBuilder) => {
+			return getQueryBuilder(queryBuilder);
+		});
 	}
 
 	/**
@@ -87,4 +89,9 @@ export class PersonManager extends BaseCustomerManager {
 function validatePerson(company) {
 	const errors = [];
 	if (errors.length > 0) throw errors;
+}
+
+function getQueryBuilder(queryBuilder) {
+	return queryBuilder
+		.leftJoinAndSelect('person.companyBase', 'companyBase');
 }

@@ -52,3 +52,32 @@ describe('GIVEN I have a company DTO', function () {
     expect(oneCompany.bases).to.have.lengthOf(2);
   });
 });
+
+describe('GIVEN I have a company DTO', function () {
+  let dbCompanies;
+
+  before('GIVEN I have a database', async function () {
+    await integrationSteps.givenIHaveADatabaseAsync();
+  });
+  before('GIVEN I have a customer', async function () {
+    await integrationSteps.givenIHaveACustomerAsync();
+  });
+  before('GIVEN I have some companies in the database with no bases', async function () {
+    for (const company of companies) {
+      company.bases = [];
+      await companySteps.whenICreateTheCompanyAsync(company);
+    }
+  });
+  before('WHEN I use get list', async () => {
+    dbCompanies = await companySteps.whenIGetListAsync();
+  });
+
+  it('THEN companies are returned', function () {
+    expect(dbCompanies.items).to.have.lengthOf(10);
+    expect(dbCompanies.length).to.equal(25);
+    const oneCompany = dbCompanies.items[0];
+    expect(oneCompany.bases).to.be.an('array');
+    expect(oneCompany.bases).to.have.lengthOf(0);
+  });
+});
+

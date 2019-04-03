@@ -141,16 +141,32 @@ export class CompanyManager extends BaseCustomerManager {
 		);
 	}
 
-	async addEmployeeAsync(companyBaseId, employeeId) {
+	/**
+	 * Adds the given person as an employee of company at the given base.
+	 * @param {number} companyBaseId The company base id.
+	 * @param {number} personId The person id.
+	 */
+	async addEmployeeAsync(companyBaseId, personId) {
 		const companyBase = await this.getBaseByIdAsync(companyBaseId);
 		const personManager = new PersonManager(super.getCustomer());
-		const employee = await personManager.getByIdAsync(employeeId);
+		const person = await personManager.getByIdAsync(personId);
 
-		if (!employee || !companyBase) return null;
+		if (!person) 
+			throw 'Impossibile trovare la persona';
+		
+		if (person.companyBase) {
+			// if person is only moving between bases of the same company, then it's ok
+			const currentCompanyBase = await this.getBaseByIdAsync(person.companyBase.id);
+			if (currentCompanyBase.company.id !== companyBase.company.id)
+				throw 'Questo persona ha gia un altro lavoro';
+		}
+		
+		if (!companyBase) 
+			throw 'Impossibile trovare la sede dell\'azienda';
 
-		employee.companyBase = companyBase;
+		person.companyBase = companyBase;
 		const db = await UnitOfWorkFactory.createAsync();
-		await db.getRepository(Person).save(employee);
+		await db.getRepository(Person).save(person);
 	}
 
 	async removeEmployeeAsync(companyBaseId, employeeId) {
@@ -180,7 +196,10 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {number} companyBaseId The base id.
 	 */
 	async getBaseByIdAsync(companyBaseId) {
-		return await super.getByIdAsync(CompanyBase, 'companyBase', companyBaseId);
+		return await super.getByIdAsync(CompanyBase, 'companyBase', companyBaseId, (queryBuilder) => {
+			return queryBuilder
+				.innerJoinAndSelect('companyBase.company', 'company');
+		});
 	}
 
 	/**
@@ -195,7 +214,7 @@ export class CompanyManager extends BaseCustomerManager {
 
 function getQueryBuilder(queryBuilder) {
 	return queryBuilder
-		.innerJoinAndSelect('company.bases', 'companyBase', 'company.id = companyBase.company');
+		.leftJoinAndSelect('company.bases', 'companyBase');
 }
 
 function getBasesWithId(bases) {
