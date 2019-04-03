@@ -7,7 +7,7 @@
     "start": "babel-node index.js",
     "initialise": "babel-node init-db.js",
     "pass": "babel-node encryptPassword.js",
-    "test": "mocha --recursive --require babel-core/register"
+    "test": "mocha --recursive --require babel-core/register -t 60000"
   },
   "author": "",
   "license": "ISC",

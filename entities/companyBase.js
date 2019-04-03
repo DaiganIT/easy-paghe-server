@@ -14,6 +14,6 @@ export class CompanyBase extends CustomerSpecific {
 	@ManyToOne((type) => Company, (c) => c.bases, { nullable: true, onDelete: 'CASCADE' })
 	company = undefined;
 
-	@OneToMany(type => Person, e => e.companyBase)
+	@OneToMany(type => Person, e => e.companyBase, { cascade: true })
 	employees = undefined;
 }

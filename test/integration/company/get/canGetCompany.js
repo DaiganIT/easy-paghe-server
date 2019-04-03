@@ -103,8 +103,8 @@ describe('GIVEN I have a company DTO', function () {
     expect(company.bases[0].address).to.equal('The main address');
     expect(company.bases[1].name).to.equal('Additional Base');
     expect(company.bases[1].address).to.equal('The additional address');
-    expect(company.bases[0].employees).to.have.lengthOf(2)
-    expect(company.bases[1].employees).to.have.lengthOf(1)
+    expect(company.bases[0].employees).to.have.lengthOf(2);
+    expect(company.bases[1].employees).to.have.lengthOf(1);
   });
 });
 

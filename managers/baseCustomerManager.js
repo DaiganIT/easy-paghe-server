@@ -1,5 +1,6 @@
 import { BaseManager } from './baseManager';
 import { SelectQueryBuilder } from 'typeorm';
+import { isArray } from 'util';
 
 export class BaseCustomerManager extends BaseManager {
 	/**
@@ -26,13 +27,20 @@ export class BaseCustomerManager extends BaseManager {
 	/**
 	 * Saves the entity.
 	 * @param {string} target The target entity.
-	 * @param {CustomerSpecific} entity The entity to save.
+	 * @param {CustomerSpecific | CustomerSpecific[]} entities The entities to save.
 	 */
-	async saveAsync(target, entity) {
-		if (!target.id)
-			entity.customer = this.customer;
-			
-		await super.saveAsync(target, entity);
+	async saveAsync(target, entities) {
+		if (isArray(entities)) {
+			for (const entity of entities) {
+				if (!entity.id)
+					entity.customer = this.customer;
+			}
+		} else {
+			if (!entities.id)
+				entities.customer = this.customer;
+		}
+
+		await super.saveAsync(target, entities);
 	}
 
 	/**
@@ -85,9 +93,7 @@ export class BaseCustomerManager extends BaseManager {
 	 * @param {number} id The user id.
 	 */
 	async deleteAsync(target, alias, id) {
-		return await super.deleteAsync(target, alias, id, (queryBuilder) => {
-			queryBuilder = customerQueryBuilder(alias, queryBuilder, this.customer.id);
-		});
+		return await super.deleteAsync(target, alias, id);
 	}
 }
 

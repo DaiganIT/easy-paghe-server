@@ -1,3 +1,4 @@
+import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 import { BaseCustomerManager } from './baseCustomerManager';
 import { Person } from '../entities/person';
 
@@ -79,6 +80,28 @@ export class PersonManager extends BaseCustomerManager {
 	 */
 	async deleteAsync(id) {
 		return await super.deleteAsync(Person, 'person', id);
+	}
+
+	/**
+	 * Deletes a range of people with a single query.
+	 * @param {Person[] | {id:number}[] } people An array of person or an array of objects with only the id.
+	 */
+	async deleteRangeAsync(people) {
+		return await super.deleteRangeAsync(Person, 'person', (queryBuilder) => {
+			return queryBuilder
+				.where('person.id in (:ids)', { ids: people.map(p => p.id) });
+		});
+	}
+
+	/**
+	 * Deletes a range of people with a single query.
+	 * @param {Person[] | {id:number}[] } people An array of person or an array of objects with only the id.
+	 */
+	async detachRangeAsync(people) {
+		for(const person of people)
+			person.companyBase = null;
+
+		return await super.saveAsync(Person, people);
 	}
 }
 

@@ -119,6 +119,30 @@ export const whenIGetListOfBaseEmployeesAsync = async (companyBaseId, filter, pa
   }
 }
 
+export const whenIDeleteCompanyAsync = async (companyId, withEmployees, setErrors) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    await companyManager.deleteAsync(companyId, withEmployees);
+    await db.close();
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
+export const whenIDeleteCompanyBaseAsync = async (companyBaseId, withEmployees, setErrors) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    await companyManager.deleteBaseAsync(companyBaseId, withEmployees);
+    await db.close();
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
 async function createCompanyManagerAsync() {
   const db = await createDb();
   const testCustomer = (await db.getRepository(Customer).find())[0];

@@ -5,11 +5,11 @@ export class BaseManager {
 	/**
 	 * Saves the entity.
 	 * @param {string} target The target entity.
-	 * @param {any} entity The entity to save.
+	 * @param {any} entities The entities to save.
 	 */
-	async saveAsync(target, entity) {
+	async saveAsync(target, entities) {
 		const db = await UnitOfWorkFactory.createAsync();
-		await db.getRepository(target).save(entity);
+		await db.getRepository(target).save(entities);
 	}
 
 	/**
@@ -53,7 +53,9 @@ export class BaseManager {
 
 		if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
 
-		return await queryBuilder.where(`${alias}.id = :id`, { id: id }).getOne();
+		return await queryBuilder
+			.where(`${alias}.id = :id`, { id: id })
+			.getOne();
 	}
 
 	/**
@@ -78,6 +80,40 @@ export class BaseManager {
 		return await queryBuilder
 			.where(`${alias}.id = :id`, { id: id })
 			.delete()
+			.execute();
+	}
+
+	/**
+	 * Deletes the ranges of entities.
+	 * @param {string} target The target entity.
+	 * @param {string} alias The main table alias.
+	 * @param {queryBuilderFunc} queryBuilderFunc The optional query builder func.
+	 */
+	async deleteRangeAsync(target, alias, queryBuilderFunc) {
+		const db = await UnitOfWorkFactory.createAsync();
+		let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
+
+		if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
+
+		return await queryBuilder
+			.delete()
+			.execute();
+	}
+
+	/**
+	 * Deletes the ranges of entities.
+	 * @param {string} target The target entity.
+	 * @param {string} alias The main table alias.
+	 * @param {queryBuilderFunc} queryBuilderFunc The optional query builder func.
+	 */
+	async updateRangeAsync(target, alias, queryBuilderFunc) {
+		const db = await UnitOfWorkFactory.createAsync();
+		let queryBuilder = db.getRepository(target).createQueryBuilder(alias);
+
+		if (queryBuilderFunc) queryBuilder = queryBuilderFunc(queryBuilder);
+
+		return await queryBuilder
+			.update()
 			.execute();
 	}
 }

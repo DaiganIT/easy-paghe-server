@@ -71,8 +71,8 @@ export class CompanyManager extends BaseCustomerManager {
 					or company.ivaCode like :filter
 					or company.inpsRegistrationNumber like :filter
 					or company.inailRegistrationNumber like :filter
-					or companyBase.name like :filter
-					or companyBase.address like :filter`,
+					or company_base.name like :filter
+					or company_base.address like :filter`,
 					{ filter: `%${filter}%` },
 				);
 
@@ -95,7 +95,7 @@ export class CompanyManager extends BaseCustomerManager {
 			pageLimit,
 			(queryBuilder) => {
 				queryBuilder = queryBuilder
-					.innerJoin('person.companyBase', 'companyBase', 'companyBase.id = person.companyBase && companyBase.company = :companyId', {
+					.innerJoin('person.companyBase', 'company_base', 'company_base.id = person.companyBase && company_base.company = :companyId', {
 						companyId: companyId,
 					});
 				if (filter)
@@ -199,13 +199,13 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {number} companyBaseId The base id.
 	 */
 	async getBaseByIdAsync(companyBaseId, withEmployees) {
-		return await super.getByIdAsync(CompanyBase, 'companyBase', companyBaseId, (queryBuilder) => {
+		return await super.getByIdAsync(CompanyBase, 'company_base', companyBaseId, (queryBuilder) => {
 			queryBuilder = queryBuilder
-				.innerJoinAndSelect('companyBase.company', 'company');
+				.innerJoinAndSelect('company_base.company', 'company');
 
 			if (withEmployees) {
 				queryBuilder = queryBuilder
-					.leftJoinAndSelect('companyBase.employees', 'employee');
+					.leftJoinAndSelect('company_base.employees', 'employee');
 			}
 
 			return queryBuilder;
@@ -214,21 +214,48 @@ export class CompanyManager extends BaseCustomerManager {
 
 	/**
 	 * Deletes the company by id.
-	 * @param {number} companyId The user id.
+	 * @param {number} companyId The company id.
+	 * @param {boolean} withEmployees If true the employees will be deleted with the company. If false they will just become unemployed.
 	 */
-	async deleteAsync(companyId) {
-		// detach all employees first I guess.
+	async deleteAsync(companyId, withEmployees) {
+		const personManager = new PersonManager(super.getCustomer());
+		const company = await this.getByIdAsync(companyId, true);
+		for (const base of company.bases) {
+			if (withEmployees) {
+				await personManager.deleteRangeAsync(base.employees);
+			} else {
+				await personManager.detachRangeAsync(base.employees);
+			}
+		}
+
 		return await super.deleteAsync(Company, 'company', companyId);
+	}
+
+	/**
+ 	 * Deletes the company base by id.
+   * @param {number} companyBaseId The company base id.
+	 * @param {boolean} withEmployees If true the employees will be deleted with the company. If false they will just become unemployed.
+   */
+	async deleteBaseAsync(companyBaseId, withEmployees) {
+		const personManager = new PersonManager(super.getCustomer());
+		const companyBase = await this.getBaseByIdAsync(companyBaseId, true);
+		if (withEmployees) {
+			await personManager.deleteRangeAsync(companyBase.employees);
+		} else {
+			await personManager.detachRangeAsync(companyBase.employees);
+		}
+
+		return await super.deleteAsync(CompanyBase, 'company_base', companyBaseId);
 	}
 }
 
 function getQueryBuilder(queryBuilder, withEmployees) {
 	queryBuilder = queryBuilder
-		.leftJoinAndSelect('company.bases', 'companyBase');
+		.leftJoinAndSelect('company.bases', 'company_base');
 
 	if (withEmployees) {
 		queryBuilder = queryBuilder
-			.leftJoinAndSelect('companyBase.employees', 'employee');
+			.leftJoinAndSelect('company_base.employees', 'employee');
 	}
 
 	return queryBuilder;
