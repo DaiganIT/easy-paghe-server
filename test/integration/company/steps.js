@@ -80,6 +80,19 @@ export const whenIGetCompanyAsync = async (companyId, withEmployees) => {
   }
 }
 
+export const whenIGetCompanyBaseAsync = async (companyId, withEmployees) => {
+  const [db, companyManager] = await createCompanyManagerAsync();
+
+  try {
+    const company = await companyManager.getBaseByIdAsync(companyId, withEmployees);
+    await db.close();
+    return company;
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
 export const whenIGetListOfAllEmployeesAsync = async (companyId, filter, page, pageLimit, setErrors) => {
   const [db, companyManager] = await createCompanyManagerAsync();
 
