@@ -271,7 +271,8 @@ export class CompanyManager extends BaseCustomerManager {
 
 function getQueryBuilder(queryBuilder, withEmployees) {
 	queryBuilder = queryBuilder
-		.leftJoinAndSelect('company.bases', 'company_base');
+		.leftJoinAndSelect('company.bases', 'company_base')
+		.innerJoinAndSelect('company_base.customer', 'company_base_customer');
 
 	if (withEmployees) {
 		queryBuilder = queryBuilder

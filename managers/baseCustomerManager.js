@@ -99,5 +99,5 @@ export class BaseCustomerManager extends BaseManager {
 
 function customerQueryBuilder(alias, queryBuilder, customerId) {
 	return queryBuilder
-		.innerJoin(`${alias}.customer`, 'customer', 'customer.id = :customerId', { customerId: customerId });
+		.innerJoinAndSelect(`${alias}.customer`, 'customer', 'customer.id = :customerId', { customerId: customerId });
 }
