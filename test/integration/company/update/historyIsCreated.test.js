@@ -143,7 +143,7 @@ const expectedHistory = {
   }
 }
 
-describe.only('GIVEN I have a company DTO', function () {
+describe('GIVEN I have a company DTO', function () {
   before('GIVEN I have a database', async function () {
     await integrationSteps.givenIHaveADatabaseAsync();
   });

@@ -240,6 +240,15 @@ export class CompanyManager extends BaseCustomerManager {
 	async deleteAsync(companyId, withEmployees) {
 		const personManager = new PersonManager(super.getCustomer());
 		const company = await this.getByIdAsync(companyId, true);
+
+		const companyWithNoEmployees = Object.assign({}, company);
+		companyWithNoEmployees.bases = companyWithNoEmployees.bases.map(base => ({ ...base, employees: undefined }));
+		const history = new History();
+		history.entity = 'Company';
+		history.type = HistoryType.Delete;
+		history.entityWasJson = JSON.stringify(companyWithNoEmployees);
+		history.itemId = company.id;
+
 		for (const base of company.bases) {
 			if (withEmployees) {
 				await personManager.deleteRangeAsync(base.employees);
@@ -248,7 +257,9 @@ export class CompanyManager extends BaseCustomerManager {
 			}
 		}
 
-		return await super.deleteAsync(Company, 'company', companyId);
+		await super.deleteAsync(Company, 'company', companyId);
+		history.entityIsJson = '';
+		await this.historyManager.addAsync([history]);
 	}
 
 	/**
@@ -259,13 +270,24 @@ export class CompanyManager extends BaseCustomerManager {
 	async deleteBaseAsync(companyBaseId, withEmployees) {
 		const personManager = new PersonManager(super.getCustomer());
 		const companyBase = await this.getBaseByIdAsync(companyBaseId, true);
+
+		const company = await this.getByIdAsync(companyBase.company.id, false);
+		const history = new History();
+		history.entity = 'Company';
+		history.type = HistoryType.Update;
+		history.entityWasJson = JSON.stringify(company);
+		history.itemId = company.id;
+
 		if (withEmployees) {
 			await personManager.deleteRangeAsync(companyBase.employees);
 		} else {
 			await personManager.detachRangeAsync(companyBase.employees);
 		}
 
-		return await super.deleteAsync(CompanyBase, 'company_base', companyBaseId);
+		await super.deleteAsync(CompanyBase, 'company_base', companyBaseId);
+		const updatedCompany = await this.getByIdAsync(companyBase.company.id, false);
+		history.entityIsJson = JSON.stringify(updatedCompany);
+		await this.historyManager.addAsync([history]);
 	}
 }
 

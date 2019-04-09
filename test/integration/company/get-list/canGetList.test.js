@@ -53,7 +53,7 @@ describe('GIVEN I have a company DTO', function () {
   });
 });
 
-describe('GIVEN I have a company DTO', function () {
+describe.only('GIVEN I have a company DTO', function () {
   let dbCompanies;
 
   before('GIVEN I have a database', async function () {

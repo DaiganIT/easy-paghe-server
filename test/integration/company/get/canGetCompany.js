@@ -141,7 +141,7 @@ describe('GIVEN I have a company DTO', function () {
   });
 });
 
-describe('GIVEN I have a company DTO', function () {
+describe.only('GIVEN I have a company DTO', function () {
   let company;
 
   before('GIVEN I have a database', async function () {
