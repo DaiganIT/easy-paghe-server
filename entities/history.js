@@ -3,10 +3,10 @@ import { CustomerSpecific } from './customerSpecific';
 
 @Entity()
 export class History extends CustomerSpecific {
-  @Column('varchar')
+  @Column('datetime')
   date = '';
   
-  @Column('number')
+  @Column('int')
   itemId = 0;
 
   @Column('varchar')
@@ -15,10 +15,10 @@ export class History extends CustomerSpecific {
   @Column('varchar')
   entity = '';
 
-  @Column('varchar')
+  @Column('text')
   entityWasJson = '';
 
-  @Column('varchar')
+  @Column('text')
   entityIsJson = '';
 }
 
@@ -26,10 +26,4 @@ export const HistoryType = {
   Create: 'Create',
   Update: 'Update',
   Delete: 'Delete'
-};
-
-export const HistoryEntity = {
-  Company: 'Company',
-  Person: 'Person',
-  User: 'User'
 };

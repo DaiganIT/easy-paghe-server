@@ -1,5 +1,6 @@
 import validate from 'validate.js';
 import { Company } from '../entities/company';
+import { History } from '../entities/history';
 import { CompanyBase } from '../entities/companyBase';
 import { BaseCustomerManager } from './baseCustomerManager';
 import { PersonManager } from './personManager';
@@ -7,6 +8,8 @@ import { Person } from '../entities/person';
 import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 import addCompanyValidator from '../models/validators/addCompanyValidator';
 import addCompanyBaseValidator from '../models/validators/addCompanyBaseValidator';
+import { HistoryManager } from './historyManager';
+import { HistoryType } from 'entities/history';
 
 export class CompanyManager extends BaseCustomerManager {
 	/**
@@ -15,6 +18,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 */
 	constructor(customer) {
 		super(customer);
+		this.historyManager = new HistoryManager(customer);
 	}
 
 	/**
@@ -26,9 +30,17 @@ export class CompanyManager extends BaseCustomerManager {
 		validateModel(companyModel);
 
 		const company = new Company();
+		const history = new History();
 		mapCompany(company, companyModel, this.customer);
 
+		history.entity = 'Company';
+		history.type = HistoryType.Create;
+		history.entityWasJson = '';
+
 		await super.saveAsync(Company, company);
+		history.entityIsJson = JSON.stringify(company);
+		history.itemId = company.id;
+		await this.historyManager.addAsync([history]);
 		return company;
 	}
 
@@ -49,9 +61,17 @@ export class CompanyManager extends BaseCustomerManager {
 				throw 'Aggiorna azienda non puo essere usato per eliminare sedi';
 
 		validateModel(companyModel);
+
+		const history = new History();
+		history.entity = 'Company';
+		history.type = HistoryType.Update;
+		history.entityWasJson = JSON.stringify(company);
+		history.itemId = company.id;
 		mapCompany(company, companyModel, this.customer);
 
 		await super.saveAsync(Company, company);
+		history.entityIsJson = JSON.stringify(company);
+		await this.historyManager.addAsync([history]);
 		return company;
 	}
 
@@ -232,10 +252,10 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	/**
- 	 * Deletes the company base by id.
-   * @param {number} companyBaseId The company base id.
+		 * Deletes the company base by id.
+	 * @param {number} companyBaseId The company base id.
 	 * @param {boolean} withEmployees If true the employees will be deleted with the company. If false they will just become unemployed.
-   */
+	 */
 	async deleteBaseAsync(companyBaseId, withEmployees) {
 		const personManager = new PersonManager(super.getCustomer());
 		const companyBase = await this.getBaseByIdAsync(companyBaseId, true);
