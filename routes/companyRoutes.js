@@ -78,9 +78,10 @@ router.delete('/:companyId/bases/:companyBaseId/employees/:employeeId', async fu
 });
 router.delete('/:companyId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
+  const query = url.parse(req.url, true).query || {};
 
   try {
-    await companyManager.deleteAsync(req.params.companyId);
+    await companyManager.deleteAsync(req.params.companyId, query.employees);
     res.status(204).send();
   } catch (err) {
     res.status = 400;
@@ -89,9 +90,10 @@ router.delete('/:companyId', async function(req, res) {
 });
 router.delete('/:companyId/bases/:companyBaseId', async function(req, res) {
   const companyManager = new CompanyManager(req.user.customer);
+  const query = url.parse(req.url, true).query || {};
 
   try {
-    await companyManager.deleteBaseAsync(req.params.companyBaseId);
+    await companyManager.deleteBaseAsync(req.params.companyBaseId, query.employees);
     res.status(204).send();
   } catch (err) {
     res.status = 400;
