@@ -1,5 +1,6 @@
 import validate from 'validate.js';
 import { Company } from '../entities/company';
+import { History } from '../entities/history';
 import { CompanyBase } from '../entities/companyBase';
 import { BaseCustomerManager } from './baseCustomerManager';
 import { PersonManager } from './personManager';
@@ -7,14 +8,17 @@ import { Person } from '../entities/person';
 import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
 import addCompanyValidator from '../models/validators/addCompanyValidator';
 import addCompanyBaseValidator from '../models/validators/addCompanyBaseValidator';
+import { HistoryManager } from './historyManager';
+import { HistoryType } from 'entities/history';
 
 export class CompanyManager extends BaseCustomerManager {
 	/**
 	 * Creates a new {CompanyManager}.
-	 * @param {Customer} customer The customer id.
+	 * @param {User} user The user.
 	 */
-	constructor(customer) {
-		super(customer);
+	constructor(user) {
+		super(user);
+		this.historyManager = new HistoryManager(user);
 	}
 
 	/**
@@ -26,9 +30,17 @@ export class CompanyManager extends BaseCustomerManager {
 		validateModel(companyModel);
 
 		const company = new Company();
+		const history = new History();
 		mapCompany(company, companyModel, this.customer);
 
+		history.entity = 'Company';
+		history.type = HistoryType.Create;
+		history.entityWasJson = '';
+
 		await super.saveAsync(Company, company);
+		history.entityIsJson = JSON.stringify(company);
+		history.itemId = company.id;
+		await this.historyManager.addAsync([history]);
 		return company;
 	}
 
@@ -49,9 +61,17 @@ export class CompanyManager extends BaseCustomerManager {
 				throw 'Aggiorna azienda non puo essere usato per eliminare sedi';
 
 		validateModel(companyModel);
+
+		const history = new History();
+		history.entity = 'Company';
+		history.type = HistoryType.Update;
+		history.entityWasJson = JSON.stringify(company);
+		history.itemId = company.id;
 		mapCompany(company, companyModel, this.customer);
 
 		await super.saveAsync(Company, company);
+		history.entityIsJson = JSON.stringify(company);
+		await this.historyManager.addAsync([history]);
 		return company;
 	}
 
@@ -148,7 +168,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 */
 	async addEmployeeAsync(companyBaseId, personId) {
 		const companyBase = await this.getBaseByIdAsync(companyBaseId);
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const person = await personManager.getByIdAsync(personId);
 
 		if (!person)
@@ -170,7 +190,7 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	async removeEmployeeAsync(employeeId) {
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const employee = await personManager.getByIdAsync(employeeId);
 
 		if (!employee)
@@ -218,8 +238,17 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {boolean} withEmployees If true the employees will be deleted with the company. If false they will just become unemployed.
 	 */
 	async deleteAsync(companyId, withEmployees) {
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const company = await this.getByIdAsync(companyId, true);
+
+		const companyWithNoEmployees = Object.assign({}, company);
+		companyWithNoEmployees.bases = companyWithNoEmployees.bases.map(base => ({ ...base, employees: undefined }));
+		const history = new History();
+		history.entity = 'Company';
+		history.type = HistoryType.Delete;
+		history.entityWasJson = JSON.stringify(companyWithNoEmployees);
+		history.itemId = company.id;
+
 		for (const base of company.bases) {
 			if (withEmployees) {
 				await personManager.deleteRangeAsync(base.employees);
@@ -228,30 +257,44 @@ export class CompanyManager extends BaseCustomerManager {
 			}
 		}
 
-		return await super.deleteAsync(Company, 'company', companyId);
+		await super.deleteAsync(Company, 'company', companyId);
+		history.entityIsJson = '';
+		await this.historyManager.addAsync([history]);
 	}
 
 	/**
- 	 * Deletes the company base by id.
-   * @param {number} companyBaseId The company base id.
+		 * Deletes the company base by id.
+	 * @param {number} companyBaseId The company base id.
 	 * @param {boolean} withEmployees If true the employees will be deleted with the company. If false they will just become unemployed.
-   */
+	 */
 	async deleteBaseAsync(companyBaseId, withEmployees) {
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const companyBase = await this.getBaseByIdAsync(companyBaseId, true);
+
+		const company = await this.getByIdAsync(companyBase.company.id, false);
+		const history = new History();
+		history.entity = 'Company';
+		history.type = HistoryType.Update;
+		history.entityWasJson = JSON.stringify(company);
+		history.itemId = company.id;
+
 		if (withEmployees) {
 			await personManager.deleteRangeAsync(companyBase.employees);
 		} else {
 			await personManager.detachRangeAsync(companyBase.employees);
 		}
 
-		return await super.deleteAsync(CompanyBase, 'company_base', companyBaseId);
+		await super.deleteAsync(CompanyBase, 'company_base', companyBaseId);
+		const updatedCompany = await this.getByIdAsync(companyBase.company.id, false);
+		history.entityIsJson = JSON.stringify(updatedCompany);
+		await this.historyManager.addAsync([history]);
 	}
 }
 
 function getQueryBuilder(queryBuilder, withEmployees) {
 	queryBuilder = queryBuilder
-		.leftJoinAndSelect('company.bases', 'company_base');
+		.leftJoinAndSelect('company.bases', 'company_base')
+		.innerJoinAndSelect('company_base.customer', 'company_base_customer');
 
 	if (withEmployees) {
 		queryBuilder = queryBuilder

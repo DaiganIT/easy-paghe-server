@@ -17,20 +17,20 @@ router.use((req, res, next) => {
  * @param {number} pageLimit Number of element per page.
  */
 router.get('/', async function(req, res) {
-  const personManager = new PersonManager(req.user.customer);
+  const personManager = new PersonManager(req.user);
   const query = url.parse(req.url, true).query || {};
 
   const companies = await personManager.getAsync(query.filter, query.page, query.pageLimit);
   res.send(companies);
 });
 router.get('/:id', async function(req, res) {
-  const personManager = new PersonManager(req.user.customer);
+  const personManager = new PersonManager(req.user);
 
   const company = await personManager.getByIdAsync(req.params.id);
   res.send(company);
 });
 router.post('/', async function(req, res) {
-  const personManager = new PersonManager(req.user.customer);
+  const personManager = new PersonManager(req.user);
 
   try {
     const person = await personManager.addAsync(req.body);
@@ -40,7 +40,7 @@ router.post('/', async function(req, res) {
   }
 });
 router.put('/:id', async function(req, res) {
-  const personManager = new PersonManager(req.user.customer);
+  const personManager = new PersonManager(req.user);
 
   try {
     const person = await personManager.updateAsync(req.params.id, req.body);
@@ -50,7 +50,7 @@ router.put('/:id', async function(req, res) {
   }
 });
 router.delete('/:id', async function(req, res) {
-  const personManager = new PersonManager(req.user.customer);
+  const personManager = new PersonManager(req.user);
 
   try {
     await personManager.deleteAsync(req.params.id);

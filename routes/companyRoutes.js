@@ -17,34 +17,34 @@ router.use((req, res, next) => {
  * @param {number} pageLimit Number of element per page.
  */
 router.get('/', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
   const query = url.parse(req.url, true).query || {};
 
   const companies = await companyManager.getAsync(query.filter, query.page, query.pageLimit);
   res.send(companies);
 });
 router.get('/:companyId', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
 
   const company = await companyManager.getByIdAsync(req.params.companyId, true);
   res.send(company);
 });
 router.get('/:companyId/bases/:companyBaseId/employees', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
   const query = url.parse(req.url, true).query || {};
 
   const company = await companyManager.getBaseEmployeesAsync(req.params.companyBaseId, query.filter, query.page, query.pageLimit);
   res.send(company);
 });
 router.get('/:companyId/employees', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
   const query = url.parse(req.url, true).query || {};
 
   const employees = await companyManager.getAllEmployeesAsync(req.params.companyId, query.filter, query.page, query.pageLimit);
   res.send(employees);
 });
 router.post('/', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
 
   try {
     const company = await companyManager.addAsync(req.body);
@@ -54,7 +54,7 @@ router.post('/', async function(req, res) {
   }
 });
 router.put('/:companyId', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
 
   try {
     const company = await companyManager.updateAsync(req.params.companyId, req.body);
@@ -65,19 +65,19 @@ router.put('/:companyId', async function(req, res) {
   }
 });
 router.post('/:companyId/bases/:companyBaseId/employees', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
 
   const employees = await companyManager.addEmployeeAsync(req.params.companyBaseId, req.body.employeeId);
   res.send(employees);
 });
 router.delete('/:companyId/bases/:companyBaseId/employees/:employeeId', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
 
   await companyManager.removeEmployeeAsync(req.params.companyBaseId, req.params.employeeId);
   res.status(200).send();
 });
 router.delete('/:companyId', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
   const query = url.parse(req.url, true).query || {};
 
   try {
@@ -89,7 +89,7 @@ router.delete('/:companyId', async function(req, res) {
   }
 });
 router.delete('/:companyId/bases/:companyBaseId', async function(req, res) {
-  const companyManager = new CompanyManager(req.user.customer);
+  const companyManager = new CompanyManager(req.user);
   const query = url.parse(req.url, true).query || {};
 
   try {
