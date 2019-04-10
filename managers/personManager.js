@@ -5,10 +5,10 @@ import { Person } from '../entities/person';
 export class PersonManager extends BaseCustomerManager {
 	/**
 	 * Creates a new {PersonManager}.
-	 * @param {Customer} customer The customer id.
+	 * @param {User} user The user.
 	 */
-	constructor(customer) {
-		super(customer);
+	constructor(user) {
+		super(user);
 	}
 
 	/**

@@ -4,11 +4,11 @@ import moment from 'moment';
 
 export class HistoryManager extends BaseCustomerManager {
 	/**
-	 * Creates a new {HistoryManager}.
-	 * @param {Customer} customer The customer id.
-	 */
-	constructor(customer) {
-		super(customer);
+		 * Creates a new {HistoryManager}.
+		 * @param {User} user The user.
+		 */
+	constructor(user) {
+		super(user);
 	}
 
 	/**
@@ -23,9 +23,10 @@ export class HistoryManager extends BaseCustomerManager {
 			itemId: model.itemId,
 			type: model.type,
 			entityWasJson: model.entityWasJson,
-			entityIsJson: model.entityIsJson
+			entityIsJson: model.entityIsJson,
+			user: this.user.name
 		}));
-		
+
 		await super.saveAsync(History, histories);
 		return histories;
 	}

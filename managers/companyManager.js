@@ -14,11 +14,11 @@ import { HistoryType } from 'entities/history';
 export class CompanyManager extends BaseCustomerManager {
 	/**
 	 * Creates a new {CompanyManager}.
-	 * @param {Customer} customer The customer id.
+	 * @param {User} user The user.
 	 */
-	constructor(customer) {
-		super(customer);
-		this.historyManager = new HistoryManager(customer);
+	constructor(user) {
+		super(user);
+		this.historyManager = new HistoryManager(user);
 	}
 
 	/**
@@ -168,7 +168,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 */
 	async addEmployeeAsync(companyBaseId, personId) {
 		const companyBase = await this.getBaseByIdAsync(companyBaseId);
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const person = await personManager.getByIdAsync(personId);
 
 		if (!person)
@@ -190,7 +190,7 @@ export class CompanyManager extends BaseCustomerManager {
 	}
 
 	async removeEmployeeAsync(employeeId) {
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const employee = await personManager.getByIdAsync(employeeId);
 
 		if (!employee)
@@ -238,7 +238,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {boolean} withEmployees If true the employees will be deleted with the company. If false they will just become unemployed.
 	 */
 	async deleteAsync(companyId, withEmployees) {
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const company = await this.getByIdAsync(companyId, true);
 
 		const companyWithNoEmployees = Object.assign({}, company);
@@ -268,7 +268,7 @@ export class CompanyManager extends BaseCustomerManager {
 	 * @param {boolean} withEmployees If true the employees will be deleted with the company. If false they will just become unemployed.
 	 */
 	async deleteBaseAsync(companyBaseId, withEmployees) {
-		const personManager = new PersonManager(super.getCustomer());
+		const personManager = new PersonManager(super.getUser());
 		const companyBase = await this.getBaseByIdAsync(companyBaseId, true);
 
 		const company = await this.getByIdAsync(companyBase.company.id, false);

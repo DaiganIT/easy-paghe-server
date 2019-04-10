@@ -140,31 +140,3 @@ describe('GIVEN I have a company DTO', function () {
     expect(company.bases[1].employees).to.have.lengthOf(0);
   });
 });
-
-describe.only('GIVEN I have a company DTO', function () {
-  let company;
-
-  before('GIVEN I have a database', async function () {
-    await integrationSteps.givenIHaveADatabaseAsync();
-  });
-  before('GIVEN I have a customer', async function () {
-    await integrationSteps.givenIHaveACustomerAsync();
-  });
-  before('GIVEN I have some companies in the database', async function () {
-    const companyWithNoBases = Object.assign({}, companyToAdd, { bases: [] });
-    await companySteps.whenICreateTheCompanyAsync(companyWithNoBases);
-  });
-  before('WHEN I use get a company', async () => {
-    company = await companySteps.whenIGetCompanyAsync(1, true);
-  });
-
-  it('THEN Company is returned', function () {
-    expect(company.id).to.equal(1);
-    expect(company.name).to.equal('Company name');
-    expect(company.fiscalCode).to.equal('CRTPTR88B21F158K');
-    expect(company.ivaCode).to.equal('45612345655');
-    expect(company.inpsRegistrationNumber).to.equal('4561237892');
-    expect(company.inailRegistrationNumber).to.equal('4567891234');
-    expect(company.bases).to.have.lengthOf(0);
-  });
-});

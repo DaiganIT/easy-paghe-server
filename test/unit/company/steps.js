@@ -3,7 +3,7 @@ import { CompanyManager } from 'Managers/companyManager';
 
 export const whenICreateTheCompanyAsync = async (company, setErrors) => {
   try {
-    const companyManager = new CompanyManager({});
+    const companyManager = new CompanyManager({ customer: {} });
     await companyManager.addAsync(company);
   } catch (err) {
     console.log(err);
@@ -13,7 +13,7 @@ export const whenICreateTheCompanyAsync = async (company, setErrors) => {
 
 export const whenIUpdateTheCompanyAsync = async (companyId, company, setErrors) => {
   try {
-    const companyManager = new CompanyManager({});
+    const companyManager = new CompanyManager({ customer: {} });
     await companyManager.updateAsync(companyId, company);
   } catch (err) {
     console.log(err);

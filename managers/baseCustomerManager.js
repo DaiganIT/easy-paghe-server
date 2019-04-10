@@ -10,14 +10,14 @@ export class BaseCustomerManager extends BaseManager {
 
 	/**
 	 * Creates a new {BaseCustomerManager}.
-	 * @param {Customer} customer the Customer.
+	 * @param {User} user the User.
 	 */
-	constructor(customer) {
-		super();
-		if (!customer)
+	constructor(user) {
+		super(user);
+		if (!user || !user.customer)
 			throw 'Customer is not defined';
 
-		this.customer = customer;
+		this.customer = user.customer;
 	}
 
 	getCustomer() {

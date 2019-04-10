@@ -20,6 +20,9 @@ export class History extends CustomerSpecific {
 
   @Column('text')
   entityIsJson = '';
+
+  @Column('varchar')
+  user = '';
 }
 
 export const HistoryType = {

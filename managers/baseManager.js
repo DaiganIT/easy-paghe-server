@@ -3,6 +3,26 @@ import { SelectQueryBuilder } from 'typeorm';
 
 export class BaseManager {
 	/**
+	 * @type {User}
+	 */
+	user;
+
+	/**
+	 * Creates a new {BaseCustomerManager}.
+	 * @param {User} user the User.
+	 */
+	constructor(user) {
+		if (!user)
+			throw 'User is not defined';
+
+		this.user = user;
+	}
+
+	getUser() {
+		return this.user;
+	}
+
+	/**
 	 * Saves the entity.
 	 * @param {string} target The target entity.
 	 * @param {any} entities The entities to save.

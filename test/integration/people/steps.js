@@ -18,5 +18,6 @@ export const whenICreateThePersonAsync = async (person, setErrors) => {
 async function createPersonManagerAsync() {
   const db = await createDb();
   const testCustomer = (await db.getRepository(Customer).find())[0];
-  return [db, new PersonManager(testCustomer)];
+  const user = { name: 'Pietro', customer: testCustomer };
+  return [db, new PersonManager(user)];
 }

@@ -97,7 +97,8 @@ const expectedHistory = {
   customer: {
     id: 1,
     name: 'Test Customer'
-  }
+  },
+  user: 'Pietro'
 }
 
 describe('GIVEN I have a company DTO', function () {

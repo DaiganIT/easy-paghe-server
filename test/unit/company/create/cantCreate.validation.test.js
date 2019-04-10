@@ -326,7 +326,7 @@ describe(`Cannot create Company Manager without a Customer`, function () {
 
 	describe('WHEN I create the company manager', () => {
 		try {
-			new CompanyManager(null);
+			new CompanyManager({ customer: null });
 		} catch (err) {
 			errors = err;
 		}

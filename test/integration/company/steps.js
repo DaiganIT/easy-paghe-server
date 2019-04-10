@@ -146,7 +146,8 @@ export const whenIDeleteCompanyBaseAsync = async (companyBaseId, withEmployees, 
 async function createCompanyManagerAsync() {
   const db = await createDb();
   const testCustomer = (await db.getRepository(Customer).find())[0];
-  return [db, new CompanyManager(testCustomer)];
+  const user = { name: 'Pietro', customer: testCustomer };
+  return [db, new CompanyManager(user)];
 }
 
 export const thenTheCompanyIsNotAdded = () => {
