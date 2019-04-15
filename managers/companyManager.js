@@ -360,5 +360,4 @@ function validateModel(companyModel) {
 		}
 	}
 	if (errors) throw errors;
-
 }
