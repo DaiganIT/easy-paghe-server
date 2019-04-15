@@ -10,13 +10,13 @@ router.use((req, res, next) => {
 });
 
 router.get('/:id', async function(req, res) {
-  const userManager = new UserManager();
+  const userManager = new UserManager(req.user);
   
   const user = await userManager.getByIdAsync(req.params.id);
   res.send(user);
 });
 router.post('/', async function(req, res) {
-  const userManager = new UserManager();
+  const userManager = new UserManager(req.user);
 
   try {
     await userManager.addAsync(req.body, req.body.user.customer.id);
@@ -27,7 +27,7 @@ router.post('/', async function(req, res) {
   }
 });
 router.put('/:code/activate', async function(req, res) {
-  const userManager = new UserManager();
+  const userManager = new UserManager(req.user);
 
   try {
     await userManager.activateUserAsync(req.params.code, req.body);
@@ -38,7 +38,7 @@ router.put('/:code/activate', async function(req, res) {
   }
 });
 router.put('/:id/resend', async function(req, res) {
-  const userManager = new UserManager();
+  const userManager = new UserManager(req.user);
 
   try {
     await userManager.resendActivationAsync(req.params.id);
@@ -49,7 +49,7 @@ router.put('/:id/resend', async function(req, res) {
   }
 });
 router.delete('/:id', async function(req, res) {
-  const userManager = new UserManager();
+  const userManager = new UserManager(req.user);
 
   try {
     await userManager.deleteAsync(req.params.id);

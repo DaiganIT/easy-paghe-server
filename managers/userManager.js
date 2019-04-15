@@ -11,6 +11,14 @@ import { BaseManager } from './baseManager';
 
 export class UserManager extends BaseManager {
 	/**
+	 * Creates a new {UserManager}.
+	 * @param {User} user The user.
+	 */
+	constructor(user) {
+		super(user);
+	}
+
+	/**
 	 * Creates a new user.
 	 * @param {AddUserDto} userModel
 	 */

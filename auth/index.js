@@ -5,7 +5,7 @@ import { UserManager } from '../managers/userManager';
 export default function() {
   passport.use(
     new LocalStrategy(async function(username, password, done) {
-      const userManager = new UserManager();
+      const userManager = new UserManager({ name: 'LOGIN' });
       try {
         var user = await userManager.getByUserAndPassAsync(username, password);
         if (!user) {
@@ -24,7 +24,7 @@ export default function() {
   });
 
   passport.deserializeUser(async function(id, done) {
-    const userManager = new UserManager();
+    const userManager = new UserManager({ name: 'LOGIN' });
     const user = await userManager.getByIdAsync(id);
     done(null, user);
   });
