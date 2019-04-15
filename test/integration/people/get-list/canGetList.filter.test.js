@@ -54,7 +54,7 @@ const testCases = [
   },
 ];
 
-describe.only('GIVEN I have a person DTO', function () {
+describe('GIVEN I have a person DTO', function () {
   before('GIVEN I have a database', async function () {
     await integrationSteps.givenIHaveADatabaseAsync();
   });
