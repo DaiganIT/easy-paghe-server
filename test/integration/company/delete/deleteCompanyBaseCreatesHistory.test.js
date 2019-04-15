@@ -20,10 +20,10 @@ const company = {
   }]
 }
 const people = [
-  { name: 'me' },
-  { name: 'you' },
-  { name: 'that guy' },
-  { name: 'somebody else' },
+  { firstName: 'me', lastName: 'me' },
+  { firstName: 'you', lastName: 'you' },
+  { firstName: 'that guy', lastName: 'that guy' },
+  { firstName: 'somebody else', lastName: 'somebody else' },
 ];
 
 const companyWas = {
@@ -87,7 +87,7 @@ const companyIs = {
 }
 
 const expectedHistory = {
-  id: 2,
+  id: 8,
   itemId: 1,
   entity: 'Company',
   type: 'Update',
@@ -132,8 +132,8 @@ describe('GIVEN I have a company DTO', function () {
       .innerJoinAndSelect('history.customer', 'customer')
       .getMany();
 
-    expect(histories).to.have.lengthOf(2);
-    const addedHistory = histories[1];
+    expect(histories).to.have.lengthOf(8);
+    const addedHistory = histories[7];
 
     expect(addedHistory).to.deep.equal(expectedHistory);
 
@@ -172,8 +172,8 @@ describe('GIVEN I have a company DTO', function () {
       .innerJoinAndSelect('history.customer', 'customer')
       .getMany();
 
-    expect(histories).to.have.lengthOf(2);
-    const addedHistory = histories[1];
+    expect(histories).to.have.lengthOf(8);
+    const addedHistory = histories[7];
 
     expect(addedHistory).to.deep.equal(expectedHistory);
 

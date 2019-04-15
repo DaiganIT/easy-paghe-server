@@ -15,22 +15,22 @@ const company = {
   }]
 }
 const people = [
-  { name: 'me' },
-  { name: 'you' },
-  { name: 'that guy' },
-  { name: 'somebody else' },
-  { name: '1' },
-  { name: '2' },
-  { name: '3' },
-  { name: '4' },
-  { name: '5' },
+  { firstName: 'me name', lastName: 'me name', phone: '234' },
+  { firstName: 'you', lastName: 'you', email: 'test@test.it' },
+  { firstName: 'that guy', lastName: 'that guy', address: 'my home' },
+  { firstName: 'somebody else', lastName: 'somebody else' },
+  { firstName: '1', lastName: '1' },
+  { firstName: '2', lastName: '2' },
+  { firstName: '3', lastName: '3' },
+  { firstName: '4', lastName: '4' },
+  { firstName: '5', lastName: '5' },
 ];
 
 const testCases = [
   {
     page: 1,
     limit: 5,
-    firstItemName: 'me',
+    firstItemName: 'me name',
     lastItemName: 'you'
   },
   {
@@ -91,8 +91,8 @@ describe('GIVEN I have a company DTO', function () {
       if (employees.items.length > 0) {
         const firstEmployee = employees.items[0];
         const lastEmployee = employees.items[employees.items.length - 1];
-        expect(firstEmployee.name).to.equal(testCase.firstItemName);
-        expect(lastEmployee.name).to.equal(testCase.lastItemName);
+        expect(firstEmployee.firstName).to.equal(testCase.firstItemName);
+        expect(lastEmployee.firstName).to.equal(testCase.lastItemName);
       }
     });
   });

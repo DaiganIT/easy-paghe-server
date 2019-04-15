@@ -18,10 +18,10 @@ const company = {
   }]
 }
 const people = [
-  { name: 'me' },
-  { name: 'you' },
-  { name: 'that guy' },
-  { name: 'somebody else' },
+  { firstName: 'me', lastName: 'me' },
+  { firstName: 'you', lastName: 'you' },
+  { firstName: 'that guy', lastName: 'that guy' },
+  { firstName: 'somebody else', lastName: 'somebody else' },
 ];
 
 describe('GIVEN I have a company DTO', function () {

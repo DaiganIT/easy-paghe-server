@@ -25,7 +25,7 @@ const secondCompany = {
     address: 'The additional address',
   }]
 }
-const employeedPerson = { name: 'me', phone: '234' };
+const employeedPerson = { firstName: 'me', lastName: 'mee', phone: '234' };
 
 describe('GIVEN I have a company DTO', function () {
   let errors;

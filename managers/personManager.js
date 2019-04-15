@@ -115,7 +115,7 @@ export class PersonManager extends BaseCustomerManager {
 				.where('person.id in (:ids)', { ids: people.map(p => p.id) });
 		});
 
-		const histories = peopleDb.map(person => ({
+		const histories = peopleDb.items.map(person => ({
 			entity: 'Person',
 			type: HistoryType.Delete,
 			entityWasJson: JSON.stringify(person),
@@ -141,7 +141,7 @@ export class PersonManager extends BaseCustomerManager {
 				.where('person.id in (:ids)', { ids: people.map(p => p.id) });
 		});
 
-		let histories = peopleDb.map(person => ({
+		let histories = peopleDb.items.map(person => ({
 			entity: 'Person',
 			type: HistoryType.Delete,
 			entityWasJson: JSON.stringify(person),

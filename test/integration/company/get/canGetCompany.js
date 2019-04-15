@@ -19,9 +19,9 @@ const companyToAdd = {
   }]
 };
 const people = [
-  { name: 'me' },
-  { name: 'you' },
-  { name: 'that guy' },
+  { firstName: 'me', lastName: 'me' },
+  { firstName: 'you', lastName: 'you' },
+  { firstName: 'that guy', lastName: 'that guy' },
 ];
 
 describe('GIVEN I have a company DTO', function () {

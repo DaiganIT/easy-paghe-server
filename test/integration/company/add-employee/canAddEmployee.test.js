@@ -18,7 +18,7 @@ const company = {
     address: 'The additional address',
   }]
 }
-const person = { name: 'me', phone: '234' };
+const person = { firstName: 'me', lastName: 'mee', phone: '234' };
 
 describe('GIVEN I have a company DTO', function () {
   before('GIVEN I have a database', async function () {

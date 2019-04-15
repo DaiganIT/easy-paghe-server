@@ -15,15 +15,15 @@ const company = {
   }]
 }
 const people = [
-  { name: 'me name', phone: '234' },
-  { name: 'you' },
-  { name: 'that guy', address: 'my home' },
-  { name: 'somebody else' },
-  { name: '1', email: 'test@test.it' },
-  { name: '2' },
-  { name: '3' },
-  { name: '4' },
-  { name: '5' },
+  { firstName: 'me name', lastName: 'me name', phone: '234' },
+  { firstName: 'other name', lastName: 'you' },
+  { firstName: 'that guy', lastName: 'that guy', address: 'my home' },
+  { firstName: 'somebody else', lastName: 'somebody else' },
+  { firstName: '1', lastName: '1', email: 'test@test.it' },
+  { firstName: '2', lastName: '2' },
+  { firstName: '3', lastName: '3' },
+  { firstName: '4', lastName: '4' },
+  { firstName: '5', lastName: '5' },
 ];
 
 const testCases = [
@@ -89,7 +89,7 @@ describe('GIVEN I have a company DTO', function () {
         expect(employees.items).to.have.lengthOf(1);
 
         const firstEmployee = employees.items[0];
-        expect(firstEmployee.name).to.equal(testCase.name);
+        expect(firstEmployee.firstName).to.equal(testCase.name);
       } else {
         expect(employees.length).to.equal(0);
         expect(employees.items).to.have.lengthOf(0);
