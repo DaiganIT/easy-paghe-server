@@ -19,12 +19,6 @@ const company = {
     address: 'The additional address',
   }]
 }
-const people = [
-  { firstName: 'me', lastName: 'me' },
-  { firstName: 'you', lastName: 'you' },
-  { firstName: 'that guy', lastName: 'that guy' },
-  { firstName: 'somebody else', lastName: 'somebody else' },
-];
 
 const companyWas = {
   id: 1,
@@ -46,7 +40,7 @@ const companyWas = {
       },
       name: 'Main Base',
       address: 'The main address',
-      employees: undefined,
+      hirees: undefined,
     },
     {
       id: 2,
@@ -56,13 +50,13 @@ const companyWas = {
       },
       name: 'Additional Base',
       address: 'The additional address',
-      employees: undefined,
+      hirees: undefined,
     },
   ],
 }
 
 const expectedHistory = {
-  id: 9,
+  id: 2,
   itemId: 1,
   entity: 'Company',
   type: 'Delete',
@@ -86,17 +80,6 @@ describe('GIVEN I have a company DTO', function () {
   before('GIVEN I have a company in the database', async function () {
     await companySteps.whenICreateTheCompanyAsync(company);
   });
-  before('GIVEN I have some persons in the database', async function () {
-    for(const person of people)
-      await personSteps.whenICreateThePersonAsync(person);
-  });
-  before('GIVEN I add me to the first base', async () => {
-    await companySteps.addEmployeeAsync(1, 1);
-    await companySteps.addEmployeeAsync(1, 3);
-  });
-  before('GIVEN I add you to the second base', async () => {
-    await companySteps.addEmployeeAsync(2, 2);
-  });
   before('WHEN I delete the company with the employees', async () => {
     await companySteps.whenIDeleteCompanyAsync(1, true);
   });
@@ -107,48 +90,8 @@ describe('GIVEN I have a company DTO', function () {
       .innerJoinAndSelect('history.customer', 'customer')
       .getMany();
 
-    expect(histories).to.have.lengthOf(9);
-    const addedHistory = histories[8];
-
-    expect(addedHistory).to.deep.equal(expectedHistory);
-
-    await db.close();
-  });
-});
-
-describe('GIVEN I have a company DTO', function () {
-  before('GIVEN I have a database', async function () {
-    await integrationSteps.givenIHaveADatabaseAsync();
-  });
-  before('GIVEN I have a customer', async function () {
-    await integrationSteps.givenIHaveACustomerAsync();
-  });
-  before('GIVEN I have a company in the database', async function () {
-    await companySteps.whenICreateTheCompanyAsync(company);
-  });
-  before('GIVEN I have some persons in the database', async function () {
-    for(const person of people)
-      await personSteps.whenICreateThePersonAsync(person);
-  });
-  before('GIVEN I add me to the first base', async () => {
-    await companySteps.addEmployeeAsync(1, 1);
-    await companySteps.addEmployeeAsync(1, 3);
-  });
-  before('GIVEN I add you to the second base', async () => {
-    await companySteps.addEmployeeAsync(2, 2);
-  });
-  before('WHEN I delete the company with the employees', async () => {
-    await companySteps.whenIDeleteCompanyAsync(1, false);
-  });
-
-  it('THEN the history is added', async function () {
-    const db = await createDb();
-    const histories = await db.getRepository(History).createQueryBuilder('history')
-      .innerJoinAndSelect('history.customer', 'customer')
-      .getMany();
-
-    expect(histories).to.have.lengthOf(9);
-    const addedHistory = histories[8];
+    expect(histories).to.have.lengthOf(2);
+    const addedHistory = histories[1];
 
     expect(addedHistory).to.deep.equal(expectedHistory);
 

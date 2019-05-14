@@ -32,7 +32,7 @@ const companyOut = {
       id: 1,
       name: 'Main Base',
       address: 'The main address',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
       customer: {
         id: 1,
@@ -43,7 +43,7 @@ const companyOut = {
       id: 2,
       name: 'Additional Base',
       address: 'The additional address',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
       customer: {
         id: 1,

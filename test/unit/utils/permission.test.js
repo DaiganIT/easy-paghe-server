@@ -37,7 +37,7 @@ const testCases = [
     result: 7
   }
 ];
-describe.only('Permissions Utils', () => {
+describe('Permissions Utils', () => {
   testCases.forEach(testCase => {
     it('can build the correct value', () => {
       const permission = buildPermission(testCase.permissions);

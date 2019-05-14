@@ -1,5 +1,5 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
-import { CompanyBase } from './companyBase';
+import { Entity, Column, OneToOne } from 'typeorm';
+import { Hire } from './hire';
 import { CustomerSpecific } from './customerSpecific';
 
 @Entity()
@@ -19,6 +19,6 @@ export class Person extends CustomerSpecific {
 	@Column('varchar', { nullable: true })
 	email = undefined;
 
-	@ManyToOne((type) => CompanyBase, (c) => c.employees, { nullable: true })
-	companyBase = undefined;
+	@OneToOne((type) => Hire, (c) => c.person, { nullable: true })
+	hire = undefined;
 }

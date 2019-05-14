@@ -115,7 +115,8 @@ export class CompanyManager extends BaseCustomerManager {
 			pageLimit,
 			(queryBuilder) => {
 				queryBuilder = queryBuilder
-					.innerJoin('person.companyBase', 'company_base', 'company_base.id = person.companyBase && company_base.company = :companyId', {
+					.innerJoin('person.hire', 'hire')
+					.innerJoin('hire.companyBase', 'company_base', 'company_base.id = person.companyBase && company_base.company = :companyId', {
 						companyId: companyId,
 					});
 				if (filter)
@@ -148,6 +149,7 @@ export class CompanyManager extends BaseCustomerManager {
 			pageLimit,
 			(queryBuilder) => {
 				queryBuilder = queryBuilder
+					.innerJoin('person.hire', 'hire')
 					.innerJoin('person.companyBase', 'companyBase', 'companyBase.id = :companyBaseId', {
 						companyBaseId: companyBaseId,
 					});
@@ -160,49 +162,6 @@ export class CompanyManager extends BaseCustomerManager {
 				return queryBuilder;
 			},
 		);
-	}
-
-	/**
-	 * Adds the given person as an employee of company at the given base.
-	 * @param {number} companyBaseId The company base id.
-	 * @param {number} personId The person id.
-	 */
-	async addEmployeeAsync(companyBaseId, personId) {
-		const companyBase = await this.getBaseByIdAsync(companyBaseId);
-		const personManager = new PersonManager(super.getUser());
-		const person = await personManager.getByIdAsync(personId);
-
-		if (!person)
-			throw 'Impossibile trovare la persona';
-
-		if (person.companyBase) {
-			// if person is only moving between bases of the same company, then it's ok
-			const currentCompanyBase = await this.getBaseByIdAsync(person.companyBase.id);
-			if (currentCompanyBase.company.id !== companyBase.company.id)
-				throw 'Questo persona ha gia un altro lavoro';
-		}
-
-		if (!companyBase)
-			throw 'Impossibile trovare la sede dell\'azienda';
-
-		person.companyBase = companyBase;
-		const db = await UnitOfWorkFactory.createAsync();
-		await db.getRepository(Person).save(person);
-	}
-
-	async removeEmployeeAsync(employeeId) {
-		const personManager = new PersonManager(super.getUser());
-		const employee = await personManager.getByIdAsync(employeeId);
-
-		if (!employee)
-			throw 'Impossibile trovare la persona';
-
-		if (!employee.companyBase)
-			throw 'Questo persona non ha un lavoro';
-
-		employee.companyBase = null;
-		const db = await UnitOfWorkFactory.createAsync();
-		await db.getRepository(Person).save(employee);
 	}
 
 	/**
@@ -226,7 +185,7 @@ export class CompanyManager extends BaseCustomerManager {
 
 			if (withEmployees) {
 				queryBuilder = queryBuilder
-					.leftJoinAndSelect('company_base.employees', 'employee');
+					.leftJoinAndSelect('company_base.hirees', 'hire');
 			}
 
 			return queryBuilder;
@@ -243,18 +202,20 @@ export class CompanyManager extends BaseCustomerManager {
 		const company = await this.getByIdAsync(companyId, true);
 
 		const companyWithNoEmployees = Object.assign({}, company);
-		companyWithNoEmployees.bases = companyWithNoEmployees.bases.map(base => ({ ...base, employees: undefined }));
+		companyWithNoEmployees.bases = companyWithNoEmployees.bases.map(base => ({ ...base, hirees: undefined }));
 		const history = new History();
 		history.entity = 'Company';
 		history.type = HistoryType.Delete;
 		history.entityWasJson = JSON.stringify(companyWithNoEmployees);
 		history.itemId = company.id;
 
-		for (const base of company.bases) {
-			if (withEmployees) {
-				await personManager.deleteRangeAsync(base.employees);
-			} else {
-				await personManager.detachRangeAsync(base.employees);
+		for (const companyBase of company.bases) {
+			if (companyBase.hirees.length > 0) {
+				if (withEmployees) {
+					await personManager.deleteRangeAsync(companyBase.hirees.map(h => h.person));
+				} else {
+					await personManager.detachRangeAsync(companyBase.hirees.map(h => h.person));
+				}
 			}
 		}
 
@@ -279,10 +240,12 @@ export class CompanyManager extends BaseCustomerManager {
 		history.entityWasJson = JSON.stringify(company);
 		history.itemId = company.id;
 
-		if (withEmployees) {
-			await personManager.deleteRangeAsync(companyBase.employees);
-		} else {
-			await personManager.detachRangeAsync(companyBase.employees);
+		if (companyBase.hirees.length > 0) {
+			if (withEmployees) {
+				await personManager.deleteRangeAsync(companyBase.hirees.map(h => h.person));
+			} else {
+				await personManager.detachRangeAsync(companyBase.hirees.map(h => h.person));
+			}
 		}
 
 		await super.deleteAsync(CompanyBase, 'company_base', companyBaseId);
@@ -299,7 +262,8 @@ function getQueryBuilder(queryBuilder, withEmployees) {
 
 	if (withEmployees) {
 		queryBuilder = queryBuilder
-			.leftJoinAndSelect('company_base.employees', 'employee');
+			.leftJoinAndSelect('company_base.hirees', 'hire')
+			.leftJoinAndSelect('hire.person', 'person');
 	}
 
 	return queryBuilder;

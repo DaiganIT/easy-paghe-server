@@ -177,6 +177,7 @@ function mapPerson(person, personModel) {
 }
 
 function getQueryBuilder(queryBuilder) {
-	return queryBuilder
-		.leftJoinAndSelect('person.companyBase', 'companyBase');
+	// return queryBuilder
+	// 	.leftJoinAndSelect('person.companyBase', 'companyBase');
+	return queryBuilder;
 }

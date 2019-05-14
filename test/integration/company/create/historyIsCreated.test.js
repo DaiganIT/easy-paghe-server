@@ -43,7 +43,7 @@ const companyOut = {
       },
       name: 'Main Base',
       address: 'The main address',
-      employees: undefined,
+      hiree: undefined,
       company: undefined,
     },
     {
@@ -54,7 +54,7 @@ const companyOut = {
       },
       name: 'Additional Base',
       address: 'The additional address',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
     }
   ],

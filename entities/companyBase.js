@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Company } from './company';
 import { CustomerSpecific } from './customerSpecific';
-import { Person } from './person';
+import { Hire } from './hire';
 
 @Entity()
 export class CompanyBase extends CustomerSpecific {
@@ -14,6 +14,6 @@ export class CompanyBase extends CustomerSpecific {
 	@ManyToOne((type) => Company, (c) => c.bases, { nullable: true, onDelete: 'CASCADE' })
 	company = undefined;
 
-	@OneToMany(type => Person, e => e.companyBase, { cascade: true })
-	employees = undefined;
+	@OneToMany(type => Hire, e => e.companyBase, { cascade: true })
+	hirees = undefined;
 }
