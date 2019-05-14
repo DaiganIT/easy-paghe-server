@@ -23,8 +23,23 @@ export class CCNL extends BaseEntity {
   holidays = 0;
   
   @Column('float')
-  freeHours = 0;  
+  extra = 0;
+  
+  @Column('float')
+  night = 0;
 
-  @OneToMany(type => SalaryTable, e => e.ccnl)
+  @Column('float')
+  bankHolidays = 0;
+
+  @Column('float')
+  extraBankHolidays = 0;
+
+  @Column('float')
+  nightBankHolidays = 0;
+
+  @Column('int')
+  months = 0;
+
+  @OneToMany(type => SalaryTable, e => e.ccnl, { cascade: true })
   salaryTable = undefined
 }

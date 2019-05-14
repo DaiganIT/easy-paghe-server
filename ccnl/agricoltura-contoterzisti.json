@@ -1,0 +1,41 @@
+{
+  "name": "Agricoltura - Contoterzisti",
+  "originalDate": "2018-05-10",
+  "startDate": "2018-05-10",
+  "endDate": "2020-12-31",
+  "weekHours": 39,
+  "maxWeekHours": 48,
+  "maxDays": 6,
+  "maxTotalExtraHoursPerYear": 300,
+  "maxExtraPerDay": 2,
+  "maxExtraPerWeek": 9,
+  "extra": 0.29,
+  "night": 0.4,
+  "bankHolidays": 0.4,
+  "extraBankHolidays": 0.5,
+  "nightBankHolidays": 0.5,
+  "restDay": "Sunday",
+  "holidays": 26,
+  "extraHolidays": 3,
+  "months": 14,
+  "prizes": { 
+    "10": 150.00,
+    "15": 180.00
+  },
+  "salaryTable": [
+    { "isApprentice": false, "level": "1 (ex par. 220)", "baseSalary": 1959.22, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "2 (ex par. 200)", "baseSalary": 1847.50, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "3 (ex par. 175)", "baseSalary": 1709.03, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "4 (ex par. 150)", "baseSalary": 1566.38, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "5 (ex par. 135)", "baseSalary": 1484.84, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "6 (ex par. 100)", "baseSalary": 1292.26, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 2 - Tipo B - 1° periodo", "baseSalary": 1566.39, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 2 - Tipo B - 2° periodo", "baseSalary": 1709.03, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 2 - Tipo B - 3° periodo", "baseSalary": 1847.48, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 3 - Tipo B - 1° periodo", "baseSalary": 1484.85, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 3 - Tipo B - 2° periodo", "baseSalary": 1566.39, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 3 - Tipo B - 3° periodo", "baseSalary": 1709.03, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 4 - Tipo B", "baseSalary": 1566.39, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 },
+    { "isApprentice": false, "level": "Appr. 5 - Tipo B", "baseSalary": 1484.85, "contingency": 0, "thirdElement": 0, "seniority": 0, "hh": 169, "gg": 26 }
+  ]
+}

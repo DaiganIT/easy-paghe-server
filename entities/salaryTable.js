@@ -10,16 +10,16 @@ export class SalaryTable extends BaseEntity {
 	@Column('varchar')
 	level = '';
 
-	@Column('decimal')
+	@Column('float')
 	baseSalary = 0;
 
-	@Column('decimal')
+	@Column('float')
 	contingency = 0;
 
-	@Column('decimal')
+	@Column('float')
 	thirdElement = 0;
 
-	@Column('decimal')
+	@Column('float')
 	seniority = 0;
 
 	@Column('int')
