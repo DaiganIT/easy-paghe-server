@@ -64,7 +64,7 @@ const companyWas = {
       },
       name: 'Main Base',
       address: 'The main address',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
     },
     {
@@ -75,7 +75,7 @@ const companyWas = {
       },
       name: 'Additional Base',
       address: 'The additional address',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
     },
   ],
@@ -101,7 +101,7 @@ const companyOut = {
       },
       name: 'Main Base updated',
       address: 'The main address updated',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
     },
     {
@@ -112,7 +112,7 @@ const companyOut = {
       },
       name: 'Additional Base updated',
       address: 'The additional address updated',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
     },
     {
@@ -123,7 +123,7 @@ const companyOut = {
       },
       name: 'Additional Base 3',
       address: 'The additional address 3',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
     }
   ],
@@ -144,7 +144,7 @@ const expectedHistory = {
   user: 'Pietro'
 }
 
-describe('GIVEN I have a company DTO', function () {
+describe.only('GIVEN I have a company DTO', function () {
   before('GIVEN I have a database', async function () {
     await integrationSteps.givenIHaveADatabaseAsync();
   });

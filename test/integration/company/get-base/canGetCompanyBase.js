@@ -25,6 +25,73 @@ const people = [
   { firstName: 'that guy', lastName: 'that guy' },
 ];
 
+// describe('GIVEN I have a company DTO', function () {
+//   let companyBase;
+
+//   before('GIVEN I have a database', async function () {
+//     await integrationSteps.givenIHaveADatabaseAsync();
+//   });
+//   before('GIVEN I have a customer', async function () {
+//     await integrationSteps.givenIHaveACustomerAsync();
+//   });
+//   before('GIVEN I have some companies in the database', async function () {
+//     await companySteps.whenICreateTheCompanyAsync(companyToAdd);
+//   });
+//   before('GIVEN I have some persons in the database', async function () {
+//     for (const person of people)
+//       await personSteps.whenICreateThePersonAsync(person);
+//   });
+//   before('GIVEN I add some people to the company as employees', async () => {
+//     await companySteps.addEmployeeAsync(1, 1);
+//     await companySteps.addEmployeeAsync(1, 2);
+//     await companySteps.addEmployeeAsync(2, 3);
+//   });
+//   before('WHEN I use get a company base', async () => {
+//     companyBase = await companySteps.whenIGetCompanyBaseAsync(1);
+//   });
+
+//   it('THEN Company Base is returned', function () {
+//     expect(companyBase.id).to.equal(1);
+//     expect(companyBase.name).to.equal('Main Base');
+//     expect(companyBase.address).to.equal('The main address');
+//     expect(companyBase.hirees).to.not.be.ok;
+//     expect(companyBase.hirees).to.not.be.ok;
+//   });
+// });
+
+// describe('GIVEN I have a company DTO', function () {
+//   let companyBase;
+
+//   before('GIVEN I have a database', async function () {
+//     await integrationSteps.givenIHaveADatabaseAsync();
+//   });
+//   before('GIVEN I have a customer', async function () {
+//     await integrationSteps.givenIHaveACustomerAsync();
+//   });
+//   before('GIVEN I have some companies in the database', async function () {
+//     await companySteps.whenICreateTheCompanyAsync(companyToAdd);
+//   });
+//   before('GIVEN I have some persons in the database', async function () {
+//     for (const person of people)
+//       await personSteps.whenICreateThePersonAsync(person);
+//   });
+//   before('GIVEN I add some people to the company as employees', async () => {
+//     await companySteps.addEmployeeAsync(1, 1);
+//     await companySteps.addEmployeeAsync(1, 2);
+//     await companySteps.addEmployeeAsync(2, 3);
+//   });
+//   before('WHEN I use get a company base', async () => {
+//     companyBase = await companySteps.whenIGetCompanyBaseAsync(1, true);
+//   });
+
+//   it('THEN Company Base is returned', function () {
+//     expect(companyBase.id).to.equal(1);
+//     expect(companyBase.name).to.equal('Main Base');
+//     expect(companyBase.address).to.equal('The main address');
+//     expect(companyBase.hirees).to.have.lengthOf(2);
+//   });
+// });
+
 describe('GIVEN I have a company DTO', function () {
   let companyBase;
 
@@ -37,25 +104,15 @@ describe('GIVEN I have a company DTO', function () {
   before('GIVEN I have some companies in the database', async function () {
     await companySteps.whenICreateTheCompanyAsync(companyToAdd);
   });
-  before('GIVEN I have some persons in the database', async function () {
-    for (const person of people)
-      await personSteps.whenICreateThePersonAsync(person);
-  });
-  before('GIVEN I add some people to the company as employees', async () => {
-    await companySteps.addEmployeeAsync(1, 1);
-    await companySteps.addEmployeeAsync(1, 2);
-    await companySteps.addEmployeeAsync(2, 3);
-  });
   before('WHEN I use get a company base', async () => {
-    companyBase = await companySteps.whenIGetCompanyBaseAsync(1);
+    companyBase = await companySteps.whenIGetCompanyBaseAsync(1, false);
   });
 
   it('THEN Company Base is returned', function () {
     expect(companyBase.id).to.equal(1);
     expect(companyBase.name).to.equal('Main Base');
     expect(companyBase.address).to.equal('The main address');
-    expect(companyBase.employees).to.not.be.ok;
-    expect(companyBase.employees).to.not.be.ok;
+    expect(companyBase.hirees).to.not.be.ok;
   });
 });
 
@@ -71,15 +128,6 @@ describe('GIVEN I have a company DTO', function () {
   before('GIVEN I have some companies in the database', async function () {
     await companySteps.whenICreateTheCompanyAsync(companyToAdd);
   });
-  before('GIVEN I have some persons in the database', async function () {
-    for (const person of people)
-      await personSteps.whenICreateThePersonAsync(person);
-  });
-  before('GIVEN I add some people to the company as employees', async () => {
-    await companySteps.addEmployeeAsync(1, 1);
-    await companySteps.addEmployeeAsync(1, 2);
-    await companySteps.addEmployeeAsync(2, 3);
-  });
   before('WHEN I use get a company base', async () => {
     companyBase = await companySteps.whenIGetCompanyBaseAsync(1, true);
   });
@@ -88,30 +136,6 @@ describe('GIVEN I have a company DTO', function () {
     expect(companyBase.id).to.equal(1);
     expect(companyBase.name).to.equal('Main Base');
     expect(companyBase.address).to.equal('The main address');
-    expect(companyBase.employees).to.have.lengthOf(2);
-  });
-});
-
-describe('GIVEN I have a company DTO', function () {
-  let companyBase;
-
-  before('GIVEN I have a database', async function () {
-    await integrationSteps.givenIHaveADatabaseAsync();
-  });
-  before('GIVEN I have a customer', async function () {
-    await integrationSteps.givenIHaveACustomerAsync();
-  });
-  before('GIVEN I have some companies in the database', async function () {
-    await companySteps.whenICreateTheCompanyAsync(companyToAdd);
-  });
-  before('WHEN I use get a company base', async () => {
-    companyBase = await companySteps.whenIGetCompanyBaseAsync(1, true);
-  });
-
-  it('THEN Company Base is returned', function () {
-    expect(companyBase.id).to.equal(1);
-    expect(companyBase.name).to.equal('Main Base');
-    expect(companyBase.address).to.equal('The main address');
-    expect(companyBase.employees).to.have.lengthOf(0);
+    expect(companyBase.hirees).to.have.lengthOf(0);
   });
 });

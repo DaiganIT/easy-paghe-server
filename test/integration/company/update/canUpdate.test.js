@@ -50,7 +50,7 @@ const companyOut = {
       id: 1,
       name: 'Main Base updated',
       address: 'The main address updated',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
       customer: {
         id: 1,
@@ -61,7 +61,7 @@ const companyOut = {
       id: 2,
       name: 'Additional Base updated',
       address: 'The additional address updated',
-      employees: undefined,
+      hirees: undefined,
       company: undefined,
       customer: {
         id: 1,
