@@ -36,7 +36,7 @@ const personWas = {
   phone: '68546',
   address: '35 Inkerman Road',
   email: 'pietro.carta88@gmail.com',
-  companyBase: null,
+  hire: null,
 }
 
 const personOut = {
@@ -50,7 +50,7 @@ const personOut = {
   phone: '685462',
   address: '352 Inkerman Road',
   email: 'pietro.carta882@gmail.com',
-  companyBase: null,
+  hire: null,
 }
 
 const historyOut = {
@@ -85,7 +85,7 @@ describe('GIVEN I have a person DTO', function () {
   it('THEN the person is updated', async function () {
     const db = await createDb();
     const people = await db.getRepository(Person).createQueryBuilder('person')
-      .leftJoinAndSelect('person.companyBase', 'companyBase')
+      .leftJoinAndSelect('person.hire', 'hire')
       .innerJoinAndSelect('person.customer', 'customer')
       .getMany();
 
