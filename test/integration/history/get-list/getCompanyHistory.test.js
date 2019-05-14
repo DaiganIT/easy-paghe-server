@@ -35,7 +35,7 @@ const updatePersonHistory = {
   entityIsJson: ''
 }
 
-describe.only('GIVEN I have a history DTO', function () {
+describe('GIVEN I have a history DTO', function () {
   let dbHistories;
 
   before('GIVEN I have a database', async function () {

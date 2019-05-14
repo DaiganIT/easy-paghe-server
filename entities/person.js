@@ -5,7 +5,10 @@ import { CustomerSpecific } from './customerSpecific';
 @Entity()
 export class Person extends CustomerSpecific {
 	@Column('varchar')
-	name = '';
+	firstName = '';
+
+	@Column('varchar')
+	lastName = '';
 
 	@Column('varchar', { nullable: true })
 	phone = undefined;

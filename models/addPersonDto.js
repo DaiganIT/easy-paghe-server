@@ -1,5 +1,6 @@
 export class AddPersonDto {
-  name = '';
+  firstName = '';
+  lastName = '';
   phone = '';
   address = '';
   email = '';

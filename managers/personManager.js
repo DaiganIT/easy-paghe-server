@@ -1,6 +1,10 @@
-import { UnitOfWorkFactory } from '../database/unitOfWorkFactory';
+import validate from 'validate.js';
 import { BaseCustomerManager } from './baseCustomerManager';
 import { Person } from '../entities/person';
+import { History } from '../entities/history';
+import addPersonValidator from '../models/validators/addPersonValidator';
+import { HistoryManager } from './historyManager';
+import { HistoryType } from 'entities/history';
 
 export class PersonManager extends BaseCustomerManager {
 	/**
@@ -9,6 +13,8 @@ export class PersonManager extends BaseCustomerManager {
 	 */
 	constructor(user) {
 		super(user);
+		this.historyManager = new HistoryManager(user);
+
 	}
 
 	/**
@@ -16,15 +22,19 @@ export class PersonManager extends BaseCustomerManager {
 	 * @param {AddPersonDto} personModel
 	 */
 	async addAsync(personModel) {
-		validatePerson(personModel);
+		validateModel(personModel);
 
 		const person = new Person();
-		person.name = personModel.name;
-		person.phone = personModel.phone;
-		person.address = personModel.address;
-		person.email = personModel.email;
+		const history = new History();
+		mapPerson(person, personModel);
+		history.entity = 'Person';
+		history.type = HistoryType.Create;
+		history.entityWasJson = '';
 
 		await super.saveAsync(Person, person);
+		history.entityIsJson = JSON.stringify(person);
+		history.itemId = person.id;
+		await this.historyManager.addAsync([history]);
 		return person;
 	}
 
@@ -33,15 +43,19 @@ export class PersonManager extends BaseCustomerManager {
 	 * @param {AddPersonDto} personModel
 	 */
 	async updateAsync(id, personModel) {
-		validatePerson(personModel);
+		validateModel(personModel);
 
 		const person = await this.getByIdAsync(id);
-		person.name = personModel.name;
-		person.phone = personModel.phone;
-		person.address = personModel.address;
-		person.email = personModel.email;
+		const history = new History();
+		history.entity = 'Person';
+		history.type = HistoryType.Update;
+		history.entityWasJson = JSON.stringify(person);
+		history.itemId = id,
+		mapPerson(person, personModel);
 
 		await super.saveAsync(Person, person);
+		history.entityIsJson = JSON.stringify(person);
+		await this.historyManager.addAsync([history]);
 		return person;
 	}
 
@@ -58,7 +72,7 @@ export class PersonManager extends BaseCustomerManager {
 		return await super.getAsync(Person, 'person', page, pageLimit, (queryBuilder) => {
 			if (filter)
 				queryBuilder
-					.where('person.name like :filter or person.address like :filter or person.phone like :filter or person.email like :filter', { filter: `%${filter}%`});
+					.where('person.firstName like :filter or person.lastName like :filter or person.address like :filter or person.phone like :filter or person.email like :filter', { filter: `%${filter}%` });
 
 			return queryBuilder;
 		});
@@ -79,7 +93,16 @@ export class PersonManager extends BaseCustomerManager {
 	 * @param {number} id The person id.
 	 */
 	async deleteAsync(id) {
-		return await super.deleteAsync(Person, 'person', id);
+		const person = await this.getByIdAsync(id);
+
+		const history = new History();
+		history.entity = 'Person';
+		history.type = HistoryType.Delete;
+		history.entityWasJson = JSON.stringify(person);
+		history.itemId = id,
+			await super.deleteAsync(Person, 'person', id);
+		history.entityIsJson = '';
+		await this.historyManager.addAsync([history]);
 	}
 
 	/**
@@ -87,10 +110,25 @@ export class PersonManager extends BaseCustomerManager {
 	 * @param {Person[] | {id:number}[] } people An array of person or an array of objects with only the id.
 	 */
 	async deleteRangeAsync(people) {
-		return await super.deleteRangeAsync(Person, 'person', (queryBuilder) => {
+		const peopleDb = await super.getAsync(Person, 'person', 1, 100000, (queryBuilder) => {
 			return queryBuilder
 				.where('person.id in (:ids)', { ids: people.map(p => p.id) });
 		});
+
+		const histories = peopleDb.items.map(person => ({
+			entity: 'Person',
+			type: HistoryType.Delete,
+			entityWasJson: JSON.stringify(person),
+			entityIsJson: '',
+			itemId: person.id
+		}));
+
+		await super.deleteRangeAsync(Person, 'person', (queryBuilder) => {
+			return queryBuilder
+				.where('person.id in (:ids)', { ids: people.map(p => p.id) });
+		});
+
+		await this.historyManager.addAsync(histories);
 	}
 
 	/**
@@ -98,20 +136,44 @@ export class PersonManager extends BaseCustomerManager {
 	 * @param {Person[] | {id:number}[] } people An array of person or an array of objects with only the id.
 	 */
 	async detachRangeAsync(people) {
-		for(const person of people)
+		const peopleDb = await super.getAsync(Person, 'person', 1, 100000, (queryBuilder) => {
+			return queryBuilder
+				.where('person.id in (:ids)', { ids: people.map(p => p.id) });
+		});
+
+		let histories = peopleDb.items.map(person => ({
+			entity: 'Person',
+			type: HistoryType.Delete,
+			entityWasJson: JSON.stringify(person),
+			entityIsJson: JSON.stringify(Object.assign({}, person, { companyBase: null })),
+			itemId: person.id
+		}));
+
+		for (const person of people)
 			person.companyBase = null;
 
-		return await super.saveAsync(Person, people);
+		await super.saveAsync(Person, people);
+		await this.historyManager.addAsync(histories);
 	}
 }
 
 /**
- * Validates the company dto.
- * @param {AddCompanyDto} company The company dto to validate.
+ * Validates the person dto.
+ * @param {AddPersonDto} personModel The person dto to validate.
  */
-function validatePerson(company) {
-	const errors = [];
-	if (errors.length > 0) throw errors;
+function validateModel(personModel) {
+	let errors;
+	const modelErrors = validate(personModel, addPersonValidator);
+	if (modelErrors) errors = Object.assign({}, errors, modelErrors);
+	if (errors) throw errors;
+}
+
+function mapPerson(person, personModel) {
+	person.firstName = personModel.firstName;
+	person.lastName = personModel.lastName;
+	person.phone = personModel.phone;
+	person.address = personModel.address;
+	person.email = personModel.email;
 }
 
 function getQueryBuilder(queryBuilder) {

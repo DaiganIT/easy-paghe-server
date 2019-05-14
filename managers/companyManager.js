@@ -120,7 +120,8 @@ export class CompanyManager extends BaseCustomerManager {
 					});
 				if (filter)
 					queryBuilder = queryBuilder.where(
-						`person.name like :filter 
+						`person.firstName like :filter 
+						or person.lastName like :filter 
 						or person.address like :filter 
 						or person.phone like :filter 
 						or person.email like :filter`,
@@ -152,7 +153,7 @@ export class CompanyManager extends BaseCustomerManager {
 					});
 				if (filter)
 					queryBuilder = queryBuilder.where(
-						'person.name like :filter or person.address like :filter or person.phone like :filter or person.email like :filter',
+						'person.firstName like :filter or person.lastName like :filter or person.address like :filter or person.phone like :filter or person.email like :filter',
 						{ filter: `%${filter}%` },
 					);
 
@@ -360,5 +361,4 @@ function validateModel(companyModel) {
 		}
 	}
 	if (errors) throw errors;
-
 }

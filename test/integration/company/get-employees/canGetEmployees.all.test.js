@@ -15,10 +15,10 @@ const company = {
   }]
 }
 const people = [
-  { name: 'me' },
-  { name: 'you' },
-  { name: 'that guy' },
-  { name: 'somebody else' },
+  { firstName: 'me', lastName: 'me' },
+  { firstName: 'you', lastName: 'you' },
+  { firstName: 'that guy', lastName: 'that guy' },
+  { firstName: 'somebody else', lastName: 'somebody else' },
 ];
 
 describe('GIVEN I have a company DTO', function () {
@@ -52,7 +52,7 @@ describe('GIVEN I have a company DTO', function () {
     expect(employees.length).to.equal(2);
     const me = employees.items[0];
     const you = employees.items[1];
-    expect(me.name).to.equal('me');
-    expect(you.name).to.equal('you');
+    expect(me.firstName).to.equal('me');
+    expect(you.firstName).to.equal('you');
   });
 });
