@@ -141,7 +141,7 @@ const fieldsTestCases = [
 	},
 ];
 
-describe.only('Hire Person DTO validation', () => {
+describe('Hire Person DTO validation', () => {
 	before(() => {
 		sinon.sandbox.create();
 		sinon.stub(UnitOfWorkFactory, 'createAsync')
