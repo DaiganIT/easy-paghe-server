@@ -7,6 +7,9 @@ import path from 'path';
 import initPassportStrategy from './auth';
 import useRoutes from './routes/routes';
 
+import './models/validators/customDateRangeValidator';
+import './models/validators/customDateTime';
+
 const app = express();
 
 app.use(express.static('../easy-paghe/dist/'));

@@ -2,7 +2,8 @@ import sinon from 'sinon';
 
 export const repository = { 
   save: sinon.spy(),
-  createQueryBuilder: () => queryBuilder
+	createQueryBuilder: () => queryBuilder,
+	findOne: sinon.spy(() => 'found')
 };
 
 export const queryBuilder = {
