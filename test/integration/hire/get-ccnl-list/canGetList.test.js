@@ -33,7 +33,7 @@ for (const _ of Array(25)) {
   index++;
 }
 
-describe.only('GIVEN I have a CCNL in the database', function () {
+describe('GIVEN I have a CCNL in the database', function () {
   let dbCcnls;
 
   before('GIVEN I have a database', async function () {
@@ -55,7 +55,7 @@ describe.only('GIVEN I have a CCNL in the database', function () {
   });
 });
 
-describe.only('GIVEN I have a CCNL in the database', function () {
+describe('GIVEN I have a CCNL in the database', function () {
   let dbCcnls;
 
   before('GIVEN I have a database', async function () {
