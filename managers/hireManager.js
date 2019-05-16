@@ -79,7 +79,7 @@ export class HireManager extends BaseCustomerManager {
 					{ filter: `%${filter}%` },
 				);
 
-			queryBuilder.orderBy('hire.startDate DESC');
+			queryBuilder.orderBy('hire.startDate', 'DESC');
 
 			return queryBuilder;
 		});

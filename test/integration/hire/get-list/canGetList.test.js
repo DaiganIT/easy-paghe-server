@@ -24,7 +24,7 @@ const people = [
   { firstName: 'you', lastName: 'you', email: 'test@test.it' },
 ];
 
-describe('GIVEN I have a company DTO', function () {
+describe.only('GIVEN I have a company DTO', function () {
   let dbHired;
 
   before('GIVEN I have a database', async function () {
@@ -73,8 +73,7 @@ describe('GIVEN I have a company DTO', function () {
   it('THEN list is returned', function () {
     expect(dbHired.items).to.have.lengthOf(2);
     expect(dbHired.length).to.equal(2);
-    // const oneHire = dbHired.items[0];
-    // expect(oneCompany.bases).to.be.an('array');
-    // expect(oneCompany.bases).to.have.lengthOf(2);
+    const firstHire = dbHired.items[0];
+    expect(firstHire.holidays).to.equal(25);
   });
 });
