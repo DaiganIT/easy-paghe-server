@@ -1,5 +1,6 @@
 import 'babel-polyfill';
 import { expect } from 'chai';
+import moment from 'moment';
 import * as integrationSteps from '../../integration';
 import * as companySteps from '../../company/steps';
 import * as personSteps from '../../people/steps';
@@ -25,8 +26,20 @@ const people = [
   { firstName: 'me name', lastName: 'me name', phone: '234' },
   { firstName: 'you', lastName: 'you', email: 'test@test.it' },
 ];
+const expectedHiredPerson = {
+  id: 1,
+  customer: undefined,
+  startDate: '2015-01-01T00:00:00.000Z',
+  endDate: '2016-01-01T00:00:00.000Z',
+  weekHours: 30,
+  holidays: 20,
+  companyBase: undefined,
+  person: undefined,
+  ccnl: undefined,
+  salaryTable: undefined
+}
 
-describe('GIVEN I have a company DTO', function () {
+describe.only('GIVEN I have a company DTO', function () {
   before('GIVEN I have a database', async function () {
     await integrationSteps.givenIHaveADatabaseAsync();
   });
@@ -58,10 +71,25 @@ describe('GIVEN I have a company DTO', function () {
   it('THEN The person is hired', async function () {
     const db = await createDb();
     const hired = await db.getRepository(Hire).createQueryBuilder('hire')
+      .innerJoinAndSelect('hire.customer', 'customer')
+      .innerJoinAndSelect('hire.ccnl', 'ccnl')
+      .innerJoinAndSelect('hire.companyBase', 'company_base')
+      .innerJoinAndSelect('hire.person', 'person')
+      .innerJoinAndSelect('hire.salaryTable', 'salary_table')
       .getMany();
 
     expect(hired).to.have.lengthOf(1);
     const hiredPerson = hired[0];
+
+    expect(hiredPerson.customer.id).to.equal(1);
+    expect(moment(hiredPerson.startDate).format()).to.equal(moment('2015-01-01').format());
+    expect(moment(hiredPerson.endDate).format()).to.equal(moment('2016-01-01').format());
+    expect(hiredPerson.weekHours).to.equal(30);
+    expect(hiredPerson.holidays).to.equal(20);
+    expect(hiredPerson.companyBase.id).to.equal(1);
+    expect(hiredPerson.person.id).to.equal(1);
+    expect(hiredPerson.ccnl.id).to.equal(1);
+    expect(hiredPerson.salaryTable.id).to.equal(1);
 
     await db.close();
   });
