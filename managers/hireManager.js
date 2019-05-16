@@ -43,6 +43,47 @@ export class HireManager extends BaseCustomerManager {
 		await this.historyManager.addAsync([history]);
 		return hire;
 	}
+
+	/**
+	 * Gets a list of hired people for the current user.
+	 * @param {string} filter Text search string.
+	 * @param {number} page Page number.
+	 * @param {number} pageLimit Number of element per page.
+	 */
+	async getAsync(filter, page, pageLimit) {
+		return await super.getAsync(Hire, 'hire', page, pageLimit, (queryBuilder) => {
+			
+			queryBuilder
+				.innerJoinAndSelect('hire.companyBase', 'company_base')
+				.innerJoinAndSelect('company_base.company', 'company')
+				.innerJoinAndSelect('hire.person', 'person')
+				.innerJoinAndSelect('hire.ccnl', 'ccnl')
+				.innerJoinAndSelect('hire.salaryTable', 'salary_table');
+
+			if (filter)
+				queryBuilder.where(
+					`company.name like :filter
+					or company.fiscalCode like :filter
+					or company.ivaCode like :filter
+					or company.inpsRegistrationNumber like :filter
+					or company.inailRegistrationNumber like :filter
+					or company_base.name like :filter
+					or company_base.address like :filter
+					or person.firstName like :filter
+					or person.lastName like :filter
+					or person.address like :filter
+					or person.phone like :filter
+					or person.email like :filter
+					or ccnl.name like :filter
+					or salary_table.level like :filter`,
+					{ filter: `%${filter}%` },
+				);
+
+			queryBuilder.orderBy('hire.startDate DESC');
+
+			return queryBuilder;
+		});
+	}
 }
 
 /**

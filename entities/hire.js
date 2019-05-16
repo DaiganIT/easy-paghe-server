@@ -1,4 +1,4 @@
-import { Entity, Column, OneToOne, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { CompanyBase } from './companyBase';
 import { Person } from './person';
 import { CustomerSpecific } from './customerSpecific';
@@ -22,15 +22,15 @@ export class Hire extends CustomerSpecific {
 	@ManyToOne(type => CompanyBase, e => e.hirees)
 	companyBase = undefined;
 
-	@OneToOne(type => Person, e => e.hire)
+	@ManyToOne(type => Person, e => e.hired)
 	@JoinColumn()
 	person = undefined;
 
-	@OneToOne(type => CCNL)
+	@ManyToOne(type => CCNL)
 	@JoinColumn()
 	ccnl = undefined;
 
-	@OneToOne(type => SalaryTable)
+	@ManyToOne(type => SalaryTable)
 	@JoinColumn()
 	salaryTable = undefined;
 }

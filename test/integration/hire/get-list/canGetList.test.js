@@ -1,12 +1,9 @@
 import 'babel-polyfill';
 import { expect } from 'chai';
-import moment from 'moment';
 import * as integrationSteps from '../../integration';
 import * as companySteps from '../../company/steps';
 import * as personSteps from '../../people/steps';
 import * as hireSteps from '../steps';
-import createDb from '../../testUnitOfWork';
-import { Hire } from 'entities/hire';
 
 const companyIn = {
   name: 'The name',
@@ -28,6 +25,8 @@ const people = [
 ];
 
 describe('GIVEN I have a company DTO', function () {
+  let dbHired;
+
   before('GIVEN I have a database', async function () {
     await integrationSteps.givenIHaveADatabaseAsync();
   });
@@ -44,7 +43,7 @@ describe('GIVEN I have a company DTO', function () {
     for (const person of people)
       await personSteps.whenICreateThePersonAsync(person);
   });
-  before('WHEN The company hires a person', async () => {
+  before('GIVEN The company hires the two people', async () => {
     await hireSteps.whenTheCompanyHiresAPerson({
       startDate: '2015-01-01',
       endDate: '2016-01-01',
@@ -55,30 +54,27 @@ describe('GIVEN I have a company DTO', function () {
       ccnlId: 1,
       salaryTableId: 1
     });
+
+    await hireSteps.whenTheCompanyHiresAPerson({
+      startDate: '2016-01-01',
+      endDate: '2017-01-01',
+      holidays: 25,
+      weekHours: 35,
+      companyBaseId: 1,
+      personId: 2,
+      ccnlId: 1,
+      salaryTableId: 2
+    });
   });
-  it('THEN The person is hired', async function () {
-    const db = await createDb();
-    const hired = await db.getRepository(Hire).createQueryBuilder('hire')
-      .innerJoinAndSelect('hire.customer', 'customer')
-      .innerJoinAndSelect('hire.ccnl', 'ccnl')
-      .innerJoinAndSelect('hire.companyBase', 'company_base')
-      .innerJoinAndSelect('hire.person', 'person')
-      .innerJoinAndSelect('hire.salaryTable', 'salary_table')
-      .getMany();
+  before('WHEN I use get list', async () => {
+    dbHired = await hireSteps.whenIGetListAsync();
+  });
 
-    expect(hired).to.have.lengthOf(1);
-    const hiredPerson = hired[0];
-
-    expect(hiredPerson.customer.id).to.equal(1);
-    expect(moment(hiredPerson.startDate).format()).to.equal(moment('2015-01-01').format());
-    expect(moment(hiredPerson.endDate).format()).to.equal(moment('2016-01-01').format());
-    expect(hiredPerson.weekHours).to.equal(30);
-    expect(hiredPerson.holidays).to.equal(20);
-    expect(hiredPerson.companyBase.id).to.equal(1);
-    expect(hiredPerson.person.id).to.equal(1);
-    expect(hiredPerson.ccnl.id).to.equal(1);
-    expect(hiredPerson.salaryTable.id).to.equal(1);
-
-    await db.close();
+  it('THEN list is returned', function () {
+    expect(dbHired.items).to.have.lengthOf(2);
+    expect(dbHired.length).to.equal(2);
+    // const oneHire = dbHired.items[0];
+    // expect(oneCompany.bases).to.be.an('array');
+    // expect(oneCompany.bases).to.have.lengthOf(2);
   });
 });

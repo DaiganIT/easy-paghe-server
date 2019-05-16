@@ -42,6 +42,18 @@ export const whenTheCompanyHiresAPerson = async (hirePersonDto, setErrors) => {
   }
 }
 
+export const whenIGetListAsync = async (filter, page, pageLimit, setErrors) => {
+  const [db, hireManager] = await createHireManagerAsync();
+
+  try {
+    let hired = await hireManager.getAsync(filter, page, pageLimit);
+    await db.close();
+    return hired;
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
 
 async function createHireManagerAsync() {
   const db = await createDb();

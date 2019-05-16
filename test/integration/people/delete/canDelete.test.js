@@ -28,7 +28,7 @@ const personWas = {
   phone: '68546',
   address: '35 Inkerman Road',
   email: 'pietro.carta88@gmail.com',
-  hire: null,
+  hired: [],
 }
 
 const historyOut = {
