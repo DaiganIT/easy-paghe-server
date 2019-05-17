@@ -100,6 +100,28 @@ export class CompanyManager extends BaseCustomerManager {
 		});
 	}
 
+		/**
+	 * Gets a list of company bases for the current user and the given company.
+	 * @param {number} companyId The company id.
+	 * @param {string} filter Text search string.
+	 * @param {number} page Page number.
+	 * @param {number} pageLimit Number of element per page.
+	 */
+	async getBasesAsync(companyId, filter, page, pageLimit) {
+		return await super.getAsync(CompanyBase, 'company_base', page, pageLimit, (queryBuilder) => {
+			queryBuilder.where('company_base.company = :companyId', { companyId });
+			
+			if (filter)
+				queryBuilder.where(
+					`company_base.name like :filter
+					or company_base.address like :filter`,
+					{ filter: `%${filter}%` },
+				);
+
+			return queryBuilder;
+		});
+	}
+
 	/**
 	 * Gets the list of all the employees.
 	 * @param {number} companyId The company Id.

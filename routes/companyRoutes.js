@@ -23,6 +23,13 @@ router.get('/', async function(req, res) {
   const companies = await companyManager.getAsync(query.filter, query.page, query.pageLimit);
   res.send(companies);
 });
+router.get('/:companyId/bases', async function(req, res) {
+  const companyManager = new CompanyManager(req.user);
+  const query = url.parse(req.url, true).query || {};
+
+  const companyBases = await companyManager.getBasesAsync(req.params.companyId, query.filter, query.page, query.pageLimit);
+  res.send(companyBases);
+});
 router.get('/:companyId', async function(req, res) {
   const companyManager = new CompanyManager(req.user);
 
