@@ -112,9 +112,9 @@ export class CompanyManager extends BaseCustomerManager {
 			queryBuilder.where('company_base.company = :companyId', { companyId });
 			
 			if (filter)
-				queryBuilder.where(
-					`company_base.name like :filter
-					or company_base.address like :filter`,
+				queryBuilder.andWhere(
+					`(company_base.name like :filter
+					or company_base.address like :filter)`,
 					{ filter: `%${filter}%` },
 				);
 

@@ -31,6 +31,7 @@ describe('can get list of company bases', function () {
   });
   before('GIVEN I have a company in the database', async function () {
     await companySteps.whenICreateTheCompanyAsync(createCompany('test'));
+    await companySteps.whenICreateTheCompanyAsync(createCompany('test2'));
   });
   before('WHEN I use get bases list', async () => {
     dbCompanyBases = await companySteps.whenIGetBasesListAsync(1);

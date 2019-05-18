@@ -24,7 +24,7 @@ const people = [
   { firstName: 'you', lastName: 'you', email: 'test@test.it' },
 ];
 
-describe.only('GIVEN I have a company DTO', function () {
+describe('GIVEN I have a company DTO', function () {
   let dbHired;
 
   before('GIVEN I have a database', async function () {

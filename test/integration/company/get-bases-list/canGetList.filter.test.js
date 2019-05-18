@@ -36,7 +36,7 @@ const testCases = [
   },
 ];
 
-describe('can get list of company bases filtered', function () {
+describe.only('can get list of company bases filtered', function () {
   before('GIVEN I have a database', async function () {
     await integrationSteps.givenIHaveADatabaseAsync();
   });
@@ -45,6 +45,7 @@ describe('can get list of company bases filtered', function () {
   });
   before('GIVEN I have some companies in the database', async function () {
     await companySteps.whenICreateTheCompanyAsync(createCompany('test'));
+    await companySteps.whenICreateTheCompanyAsync(createCompany('test2'));
   });
 
   testCases.forEach(testCase => {
