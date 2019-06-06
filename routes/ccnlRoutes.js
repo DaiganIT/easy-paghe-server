@@ -20,7 +20,9 @@ router.get('/', async function(req, res) {
   const ccnlManager = new CCNLManager(req.user);
   const query = url.parse(req.url, true).query || {};
 
-  const ccnls = await ccnlManager.getAsync(query.withSalaries, query.filter, query.page, query.pageLimit);
+  const withSalaries = query.withSalaries === 'true';
+
+  const ccnls = await ccnlManager.getAsync(withSalaries, query.filter, query.page, query.pageLimit);
   res.send(ccnls);
 });
 // router.get('/:id', async function(req, res) {
