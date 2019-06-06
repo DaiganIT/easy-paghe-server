@@ -25,6 +25,13 @@ router.get('/', async function(req, res) {
   const ccnls = await ccnlManager.getAsync(withSalaries, query.filter, query.page, query.pageLimit);
   res.send(ccnls);
 });
+router.get('/:id/levels', async function(req, res) {
+  const ccnlManager = new CCNLManager(req.user);
+  const query = url.parse(req.url, true).query || {};
+
+  const levels = await ccnlManager.getLevelsAsync(req.params.id, query.filter, query.page, query.pageLimit);
+  res.send(levels);
+});
 // router.get('/:id', async function(req, res) {
 //   const hireManager = new HireManager(req.user);
 
