@@ -33,8 +33,8 @@ for (const _ of Array(25)) {
   index++;
 }
 
-describe('can get CCNL list without the salary table', function () {
-  let dbCcnls;
+describe('can get list of CCNL Levels', function () {
+  let dbLevels;
 
   before('GIVEN I have a database', async function () {
     await integrationSteps.givenIHaveADatabaseAsync();
@@ -43,37 +43,12 @@ describe('can get CCNL list without the salary table', function () {
     for (const ccnl of ccnls)
       await hireSteps.whenICreateTheCCNLAsync(ccnl);
   });
-  before('WHEN I use get list to get only the CCNLs', async () => {
-    dbCcnls = await hireSteps.whenIGetCCNLListAsync();
+  before('WHEN I use get list to get levels for the CCNL 3', async () => {
+    dbLevels = await hireSteps.whenIGetCCNLLevelsListAsync(3);
   });
 
   it('THEN list is returned and salary table is empty', function () {
-    expect(dbCcnls.items).to.have.lengthOf(10);
-    expect(dbCcnls.length).to.equal(25);
-    const oneCcnl = dbCcnls.items[0];
-    expect(oneCcnl.salaryTable).to.not.be.ok;
-  });
-});
-
-describe('can get CCNL list with the salary table', function () {
-  let dbCcnls;
-
-  before('GIVEN I have a database', async function () {
-    await integrationSteps.givenIHaveADatabaseAsync();
-  });
-  before('GIVEN I have some ccnls in the database', async function () {
-    for (const ccnl of ccnls)
-      await hireSteps.whenICreateTheCCNLAsync(ccnl);
-  });
-  before('WHEN I use get list to get CCNLs and Salary Table', async () => {
-    dbCcnls = await hireSteps.whenIGetCCNLListAsync(true);
-  });
-
-  it('THEN list is returned and salary table is not empty', function () {
-    expect(dbCcnls.items).to.have.lengthOf(10);
-    expect(dbCcnls.length).to.equal(25);
-    const oneCcnl = dbCcnls.items[0];
-    expect(oneCcnl.salaryTable).to.be.an('array');
-    expect(oneCcnl.salaryTable).to.have.lengthOf(4);
+    expect(dbLevels.items).to.have.lengthOf(4);
+    expect(dbLevels.length).to.equal(4);
   });
 });

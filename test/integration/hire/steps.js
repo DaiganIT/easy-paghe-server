@@ -30,6 +30,19 @@ export const whenIGetCCNLListAsync = async (withSalaryTable, filter, page, pageL
   }
 }
 
+export const whenIGetCCNLLevelsListAsync = async (ccnlId, filter, page, pageLimit, setErrors) => {
+  const [db, ccnlManager] = await createCCNLManagerAsync();
+
+  try {
+    let ccnls = await ccnlManager.getLevelsAsync(ccnlId, filter, page, pageLimit);
+    await db.close();
+    return ccnls;
+  } catch (err) {
+    console.log(err);
+    if (setErrors) setErrors(err);
+  }
+}
+
 export const whenTheCompanyHiresAPerson = async (hirePersonDto, setErrors) => {
   const [db, hireManager] = await createHireManagerAsync();
 
